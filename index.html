@@ -467,7 +467,7 @@
         <div class="card">
           <div class="card-head">
             <h2>Input + Conversion</h2>
-            <p>Capture a photo or upload one, choose your sprite settings, then convert it into an indexed asset.</p>
+            <p>Capture a photo or upload one, choose Original photo dimensions or a pixel-detail preset, then convert it into an indexed asset.</p>
           </div>
           <div class="controls">
             <div class="row">
@@ -479,13 +479,17 @@
               </label>
             </div>
             <div class="row">
-              <label>Sprite Size
+              <label>Pixel Detail
                 <select id="spriteSize">
+                  <option value="original" selected>Original photo dimensions</option>
                   <option value="16">16 × 16</option>
                   <option value="24">24 × 24</option>
-                  <option value="32" selected>32 × 32</option>
+                  <option value="32">32 × 32</option>
                   <option value="48">48 × 48</option>
                   <option value="64">64 × 64</option>
+                  <option value="96">96 × 96 — high detail</option>
+                  <option value="128">128 × 128 — extra detail</option>
+                  <option value="256">256 × 256 — ultra detail</option>
                 </select>
               </label>
               <label>Palette Size
@@ -549,11 +553,11 @@
         <div class="guide-grid">
           <div class="guide-step">
             <strong>1. Capture or Upload</strong>
-            <p>Use the camera for a fresh photo or upload an existing portrait. The image is cropped into a square source automatically.</p>
+            <p>Use the camera for a fresh photo or upload an existing image. Uploaded photos keep their original width and height before conversion.</p>
           </div>
           <div class="guide-step">
             <strong>2. Convert Accurately</strong>
-            <p>Choose a sprite size and palette limit. The app samples the real image, builds a color palette, and maps each pixel to the nearest indexed color.</p>
+            <p>Choose Original photo dimensions or a pixel-detail preset, then choose a palette limit. The app samples the real image, builds a color palette, and maps each pixel to the nearest indexed color.</p>
           </div>
           <div class="guide-step">
             <strong>3. Export for Use</strong>
@@ -581,7 +585,10 @@
       stream: null,
       sourceReady: false,
       latest: null,
-      latestSourceDataUrl: ""
+      latestSourceDataUrl: "",
+      sourceWidth: 0,
+      sourceHeight: 0,
+      sourceKind: ""
     };
 
     const homeScreen = document.getElementById('homeScreen');
@@ -697,16 +704,17 @@
       }
     }
 
-    function drawCover(image, ctx, targetW, targetH) {
-      const iw = image.videoWidth || image.naturalWidth || image.width;
-      const ih = image.videoHeight || image.naturalHeight || image.height;
-      const scale = Math.max(targetW / iw, targetH / ih);
-      const dw = iw * scale;
-      const dh = ih * scale;
-      const dx = (targetW - dw) / 2;
-      const dy = (targetH - dh) / 2;
-      ctx.clearRect(0, 0, targetW, targetH);
-      ctx.drawImage(image, dx, dy, dw, dh);
+    function setSourceCanvasSize(width, height) {
+      captureCanvas.width = Math.max(1, Math.round(width));
+      captureCanvas.height = Math.max(1, Math.round(height));
+      state.sourceWidth = captureCanvas.width;
+      state.sourceHeight = captureCanvas.height;
+    }
+
+    function drawOriginalSize(image, ctx, width, height) {
+      ctx.clearRect(0, 0, width, height);
+      ctx.imageSmoothingEnabled = true;
+      ctx.drawImage(image, 0, 0, width, height);
     }
 
     function capturePhoto() {
@@ -714,13 +722,17 @@
         setStatus('The camera is not ready yet.');
         return;
       }
-      drawCover(video, captureCtx, captureCanvas.width, captureCanvas.height);
+      const width = video.videoWidth || 1280;
+      const height = video.videoHeight || 720;
+      setSourceCanvasSize(width, height);
+      drawOriginalSize(video, captureCtx, captureCanvas.width, captureCanvas.height);
       state.latestSourceDataUrl = captureCanvas.toDataURL('image/png');
+      state.sourceKind = 'camera';
       sourcePreview.src = state.latestSourceDataUrl;
       sourcePreview.style.display = 'block';
       video.style.display = 'none';
       state.sourceReady = true;
-      setStatus('Photo captured. Click Convert Image to generate your asset.');
+      setStatus(`Photo captured at ${captureCanvas.width} × ${captureCanvas.height}. Choose Original photo dimensions or a pixel-detail preset, then convert.`);
     }
 
     function loadFile(file) {
@@ -728,13 +740,15 @@
       reader.onload = event => {
         const img = new Image();
         img.onload = () => {
-          drawCover(img, captureCtx, captureCanvas.width, captureCanvas.height);
+          setSourceCanvasSize(img.naturalWidth || img.width, img.naturalHeight || img.height);
+          drawOriginalSize(img, captureCtx, captureCanvas.width, captureCanvas.height);
           state.latestSourceDataUrl = captureCanvas.toDataURL('image/png');
+          state.sourceKind = 'upload';
           sourcePreview.src = state.latestSourceDataUrl;
           sourcePreview.style.display = 'block';
           video.style.display = 'none';
           state.sourceReady = true;
-          setStatus('Photo uploaded. Click Convert Image to generate your asset.');
+          setStatus(`Photo uploaded at original size: ${captureCanvas.width} × ${captureCanvas.height}. Original dimensions will be preserved unless you choose a smaller pixel-detail preset.`);
         };
         img.src = event.target.result;
       };
@@ -787,25 +801,42 @@
       return '0x' + value.toString(16).toUpperCase().padStart(4, '0');
     }
 
+    function buildPixelCanvas(indexed, palette, width, height) {
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      const imageData = ctx.createImageData(width, height);
+      for (let i = 0; i < indexed.length; i++) {
+        const [r, g, b] = palette[indexed[i]] || [0, 0, 0];
+        const offset = i * 4;
+        imageData.data[offset] = r;
+        imageData.data[offset + 1] = g;
+        imageData.data[offset + 2] = b;
+        imageData.data[offset + 3] = 255;
+      }
+      ctx.putImageData(imageData, 0, 0);
+      return canvas;
+    }
+
     function renderPreview(indexed, palette, width, height) {
-      const scale = Number(scaleRange.value);
-      const drawW = width * scale;
-      const drawH = height * scale;
+      const sourceCanvas = buildPixelCanvas(indexed, palette, width, height);
+      const requestedScale = Number(scaleRange.value);
+      const maxPreviewSide = 900;
+      const scaledW = width * requestedScale;
+      const scaledH = height * requestedScale;
+      const fitScale = Math.min(1, maxPreviewSide / Math.max(scaledW, scaledH));
+      const drawW = Math.max(1, Math.round(scaledW * fitScale));
+      const drawH = Math.max(1, Math.round(scaledH * fitScale));
+
       spriteCanvas.width = Math.max(420, drawW + 32);
       spriteCanvas.height = Math.max(420, drawH + 32);
       spriteCtx.clearRect(0, 0, spriteCanvas.width, spriteCanvas.height);
+      spriteCtx.imageSmoothingEnabled = false;
 
       const ox = Math.floor((spriteCanvas.width - drawW) / 2);
       const oy = Math.floor((spriteCanvas.height - drawH) / 2);
-
-      for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-          const index = indexed[y * width + x];
-          const [r,g,b] = palette[index];
-          spriteCtx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-          spriteCtx.fillRect(ox + x * scale, oy + y * scale, scale, scale);
-        }
-      }
+      spriteCtx.drawImage(sourceCanvas, ox, oy, drawW, drawH);
     }
 
     function renderPalette(palette) {
@@ -848,22 +879,42 @@
       return `#ifndef BITME_ASSET_H\n#define BITME_ASSET_H\n\n#define BITME_ASSET_WIDTH ${width}\n#define BITME_ASSET_HEIGHT ${height}\n#define BITME_ASSET_PALETTE_SIZE ${palette.length}\n\nstatic const unsigned short bitme_asset_palette[${palette.length}] = {\n  ${palette565.join(', ')}\n};\n\nstatic const unsigned char bitme_asset_pixels[${indexed.length}] = {\n  ${indexed.join(', ')}\n};\n\n#endif`;
     }
 
+    function getTargetDimensions() {
+      const selected = spriteSize.value;
+      if (selected === 'original') {
+        return {
+          width: captureCanvas.width,
+          height: captureCanvas.height,
+          label: 'original dimensions'
+        };
+      }
+      const size = Number(selected);
+      return {
+        width: size,
+        height: size,
+        label: `${size} × ${size}`
+      };
+    }
+
     function convertImage() {
       if (!state.sourceReady) {
         setStatus('Capture or upload a photo first.');
         return;
       }
-      const size = Number(spriteSize.value);
+      const target = getTargetDimensions();
+      const width = target.width;
+      const height = target.height;
       const colors = Number(paletteSize.value);
 
       const tmpCanvas = document.createElement('canvas');
-      tmpCanvas.width = size;
-      tmpCanvas.height = size;
+      tmpCanvas.width = width;
+      tmpCanvas.height = height;
       const tmpCtx = tmpCanvas.getContext('2d', { willReadFrequently: true });
-      tmpCtx.imageSmoothingEnabled = true;
-      tmpCtx.drawImage(captureCanvas, 0, 0, size, size);
+      tmpCtx.imageSmoothingEnabled = spriteSize.value !== 'original';
+      tmpCtx.clearRect(0, 0, width, height);
+      tmpCtx.drawImage(captureCanvas, 0, 0, captureCanvas.width, captureCanvas.height, 0, 0, width, height);
 
-      const imgData = tmpCtx.getImageData(0, 0, size, size);
+      const imgData = tmpCtx.getImageData(0, 0, width, height);
       const palette = buildPalette(imgData, colors);
       const indexed = [];
 
@@ -874,31 +925,35 @@
         indexed.push(nearestPaletteIndex(r, g, b, palette));
       }
 
+      const pixelCanvas = buildPixelCanvas(indexed, palette, width, height);
       const jsonExport = {
         name: 'bitme_asset',
-        width: size,
-        height: size,
+        width,
+        height,
+        sourceWidth: captureCanvas.width,
+        sourceHeight: captureCanvas.height,
+        outputMode: spriteSize.value === 'original' ? 'original_dimensions' : 'resampled_pixel_detail',
         paletteRGB565: palette.map(([r,g,b]) => rgb565(r,g,b)),
         paletteRGB: palette,
         indexedPixels: indexed
       };
 
       state.latest = {
-        width: size,
-        height: size,
+        width,
+        height,
         palette,
         indexed,
-        pngDataUrl: tmpCanvas.toDataURL('image/png'),
+        pngDataUrl: pixelCanvas.toDataURL('image/png'),
         jsonText: JSON.stringify(jsonExport, null, 2),
-        svgText: buildSvg(indexed, palette, size, size),
-        cssText: buildCss(indexed, palette, size, size),
-        headerText: buildHeader(indexed, palette, size, size)
+        svgText: buildSvg(indexed, palette, width, height),
+        cssText: buildCss(indexed, palette, width, height),
+        headerText: buildHeader(indexed, palette, width, height)
       };
 
-      renderPreview(indexed, palette, size, size);
+      renderPreview(indexed, palette, width, height);
       renderPalette(palette);
       codeOutput.value = state.latest.jsonText;
-      setStatus('Conversion complete. Your asset is ready to export.');
+      setStatus(`Conversion complete at ${width} × ${height} using ${colors} colors. Your asset is ready to export.`);
     }
 
     function downloadBlob(filename, content, type) {
