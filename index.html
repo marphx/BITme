@@ -4,252 +4,592 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BitMe | Designed by Mario Garcia</title>
+  <meta name="description" content="BitMe converts a face photo into a 16-bit style sprite and exports game-friendly code." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
   <style>
     :root{
-      --bg:#060607;
-      --bg2:#0d0c0a;
-      --panel:#14110d;
-      --line:rgba(255,222,141,.22);
-      --text:#fff7e8;
-      --muted:#d4c09a;
+      --bg:#070707;
+      --bg2:#100d09;
+      --panel:#15110d;
+      --panel2:#1b1510;
       --gold:#f0d48b;
-      --gold2:#c79b43;
+      --gold2:#c8973e;
+      --gold3:#fff2cd;
+      --line:rgba(240,212,139,.22);
+      --line2:rgba(240,212,139,.38);
+      --muted:#d1c09b;
+      --text:#fff8e8;
       --shadow:0 12px 40px rgba(0,0,0,.45);
     }
     *{box-sizing:border-box;margin:0;padding:0}
     html,body{min-height:100%}
     body{
       font-family:Inter,sans-serif;
-      background:
-        radial-gradient(circle at 50% 0%, rgba(240,212,139,.08), transparent 28%),
-        linear-gradient(180deg,#050505 0%,#0a0907 55%,#0d0b09 100%);
       color:var(--text);
+      background:
+        radial-gradient(circle at 50% 0%, rgba(240,212,139,.08), transparent 24%),
+        linear-gradient(180deg,#050505 0%,#0a0907 55%,#0d0b09 100%);
+      overflow-x:hidden;
     }
+    body::before{
+      content:"";
+      position:fixed; inset:0;
+      background:
+        linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
+      background-size:26px 26px;
+      opacity:.14; pointer-events:none;
+    }
+    .page{min-height:100vh}
     .home{
       min-height:100vh;
-      padding:40px 18px 56px;
       display:flex;
       justify-content:center;
+      padding:28px 16px 42px;
     }
-    .wrap{
+    .shell{
       width:min(1100px,100%);
       display:flex;
       flex-direction:column;
       align-items:center;
-      gap:28px;
+      gap:24px;
     }
-    .sprite-stage{
-      position:relative;
+    .hero-portrait{
       width:min(560px,92vw);
       display:flex;
-      justify-content:center;
+      flex-direction:column;
       align-items:center;
+      gap:16px;
       padding-top:10px;
-      padding-bottom:10px;
     }
-    .sprite-glow{
+    .portrait-stage{
+      position:relative;
+      width:100%;
+      display:grid;
+      place-items:center;
+      min-height:360px;
+    }
+    .portrait-glow{
       position:absolute;
-      width:min(430px,72vw);
-      aspect-ratio:1/1;
+      width:min(360px,66vw);
+      height:min(360px,66vw);
       border-radius:50%;
       background:
-        radial-gradient(circle, rgba(255,240,191,.22) 0%, rgba(240,212,139,.16) 28%, rgba(199,155,67,.12) 48%, transparent 70%);
+        radial-gradient(circle, rgba(255,242,205,.30) 0%, rgba(240,212,139,.18) 30%, rgba(200,151,62,.10) 52%, transparent 72%);
       filter:blur(22px);
-      transform:translateY(10px);
-      pointer-events:none;
+      opacity:.95;
     }
-    .sprite-frame{
+    .portrait-frame{
       position:relative;
-      background:linear-gradient(180deg,rgba(21,17,13,.92),rgba(13,10,8,.98));
+      width:320px;
+      height:320px;
+      display:grid;
+      place-items:center;
       border:1px solid var(--line);
       border-radius:24px;
-      padding:18px;
-      box-shadow:var(--shadow), 0 0 0 1px rgba(255,255,255,.02) inset;
+      background:linear-gradient(180deg, rgba(22,17,13,.96), rgba(12,10,8,.98));
+      box-shadow:0 0 0 1px rgba(255,255,255,.02), var(--shadow);
+      overflow:hidden;
+    }
+    .portrait-frame::before{
+      content:"";
+      position:absolute;
+      inset:12px;
+      border:1px solid rgba(240,212,139,.08);
+      border-radius:18px;
+      pointer-events:none;
     }
     #heroCanvas{
-      display:block;
-      width:512px;
-      height:512px;
-      max-width:min(78vw,512px);
-      max-height:min(78vw,512px);
-      aspect-ratio:1/1;
+      width:256px;
+      height:256px;
       image-rendering:pixelated;
       image-rendering:crisp-edges;
-      background:transparent;
+      image-rendering:-moz-crisp-edges;
+      image-rendering:-webkit-optimize-contrast;
+      -ms-interpolation-mode:nearest-neighbor;
+      object-fit:contain;
+      filter:
+        drop-shadow(0 0 8px rgba(255,227,163,.20))
+        drop-shadow(0 0 18px rgba(240,212,139,.12));
+      display:block;
     }
-    .copy{
+    .title-card{
       width:min(860px,100%);
-      text-align:center;
-      background:linear-gradient(180deg,rgba(14,12,10,.88),rgba(10,9,8,.96));
-      border:1px solid rgba(255,222,141,.16);
+      background:linear-gradient(180deg, rgba(17,13,10,.92), rgba(11,9,7,.98));
+      border:1px solid var(--line);
       border-radius:24px;
+      padding:26px 20px 22px;
+      text-align:center;
       box-shadow:var(--shadow);
-      padding:30px 22px 28px;
     }
-    .eyebrow{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
+    .tag{
+      display:inline-flex; align-items:center; gap:10px;
       padding:10px 14px;
+      border:1px solid var(--line2);
       border-radius:999px;
+      background:rgba(240,212,139,.08);
+      color:var(--gold);
       font-size:11px;
-      font-weight:800;
       letter-spacing:.08em;
       text-transform:uppercase;
-      color:var(--gold);
-      background:rgba(240,212,139,.09);
-      border:1px solid rgba(240,212,139,.18);
+      font-weight:800;
       margin-bottom:18px;
     }
-    .eyebrow::before{
-      content:"";
+    .dot{
       width:8px;height:8px;border-radius:50%;
       background:var(--gold);
-      box-shadow:0 0 12px rgba(240,212,139,.6);
+      box-shadow:0 0 12px rgba(240,212,139,.9);
     }
     h1{
-      font-family:"Press Start 2P",cursive;
-      font-size:clamp(24px,4.6vw,46px);
-      line-height:1.35;
-      color:#fff8ec;
+      font-family:"Press Start 2P", monospace;
+      font-size:clamp(22px,4.2vw,46px);
+      line-height:1.3;
+      color:var(--gold3);
       text-shadow:
-        0 2px 0 rgba(0,0,0,.65),
-        0 8px 18px rgba(0,0,0,.65),
-        0 0 26px rgba(240,212,139,.08);
-      margin-bottom:16px;
+        0 3px 0 rgba(0,0,0,.45),
+        0 0 12px rgba(255,242,205,.18),
+        0 0 30px rgba(240,212,139,.08);
+      margin-bottom:18px;
     }
-    h1 span{color:var(--gold)}
+    h1 span{ color:var(--gold); }
     .sub{
+      max-width:720px;
+      margin:0 auto 16px;
       color:var(--muted);
-      font-size:clamp(15px,2vw,18px);
       line-height:1.8;
-      max-width:680px;
-      margin:0 auto 12px;
-      text-shadow:0 2px 10px rgba(0,0,0,.45);
+      font-size:16px;
     }
     .credit{
-      color:#f8ddb0;
+      color:#ffe7a6;
       font-weight:700;
-      letter-spacing:.04em;
-      margin-top:8px;
-      text-shadow:0 2px 10px rgba(0,0,0,.45);
+      margin-bottom:18px;
     }
-    @media (max-width:640px){
-      .home{padding-top:24px}
-      .sprite-frame{padding:12px;border-radius:18px}
-      #heroCanvas{width:384px;height:384px;max-width:86vw;max-height:86vw}
-      .copy{padding:24px 16px 22px}
+    .actions{display:flex; flex-wrap:wrap; gap:12px; justify-content:center}
+    .btn{
+      appearance:none; border:none; cursor:pointer;
+      padding:14px 18px; border-radius:14px;
+      font:700 14px Inter,sans-serif; color:var(--text);
+      background:linear-gradient(180deg,#1e1711,#130f0b);
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
+    }
+    .btn.primary{background:linear-gradient(180deg, rgba(240,212,139,.22), rgba(19,15,11,.98))}
+    .btn:hover{border-color:var(--line2)}
+    .notice{
+      font-size:12px; color:#f6d694; margin-top:12px; line-height:1.6;
+    }
+
+    .app{display:none; padding:18px 14px 32px}
+    .app.active{display:block}
+    .app-shell{width:min(1180px,100%); margin:0 auto; display:grid; gap:16px}
+    .topbar,.card{
+      background:linear-gradient(180deg, rgba(17,13,10,.96), rgba(11,9,7,.98));
+      border:1px solid var(--line);
+      border-radius:20px;
+      box-shadow:var(--shadow);
+    }
+    .topbar{
+      padding:18px 20px; display:flex; justify-content:space-between; gap:12px; align-items:center;
+    }
+    .brand h2{
+      font-family:"Press Start 2P", monospace;
+      font-size:20px;
+      color:var(--gold3);
+      margin-bottom:8px;
+    }
+    .brand p,.status{color:var(--muted); font-size:13px}
+    .grid{display:grid; grid-template-columns:1.05fr .95fr; gap:16px}
+    .card-head{padding:18px 18px 0}
+    .card-head h3{
+      font-family:"Press Start 2P", monospace;
+      font-size:13px; line-height:1.5; color:var(--gold3);
+      margin-bottom:10px;
+    }
+    .card-head p{color:var(--muted); font-size:13px; line-height:1.7}
+    .controls,.stage,.exports,.info{padding:18px}
+    .row{display:flex; flex-wrap:wrap; gap:10px; margin-bottom:12px}
+    label{display:flex; flex-direction:column; gap:8px; color:#f3ddb1; font-size:12px; flex:1; min-width:160px}
+    select,input[type="range"],textarea{
+      width:100%; background:#130f0b; color:var(--text); border:1px solid var(--line);
+      border-radius:12px; padding:12px; font:inherit;
+    }
+    .media-box,.preview-box{
+      min-height:380px; display:grid; place-items:center;
+      border:1px solid rgba(240,212,139,.12);
+      border-radius:16px; background:#0f0c09; overflow:hidden;
+    }
+    video,img.source{
+      width:100%; height:100%; object-fit:cover; display:block; background:#0f0c09;
+    }
+    img.source{display:none}
+    #spriteCanvas{
+      width:min(100%,420px); height:auto;
+      image-rendering:pixelated; image-rendering:crisp-edges; display:block;
+      background:#100d09; border:1px solid rgba(240,212,139,.18); border-radius:12px;
+    }
+    .palette{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px}
+    .swatch{border:1px solid rgba(240,212,139,.15); border-radius:12px; overflow:hidden; background:#120e0b}
+    .swatch-color{height:32px}
+    .swatch-label{font-size:11px; text-align:center; padding:8px; color:#ffe9b1}
+    textarea{min-height:220px; resize:vertical; font:12px/1.6 ui-monospace, monospace}
+    @media (max-width:900px){
+      .grid{grid-template-columns:1fr}
+      .portrait-frame{width:290px;height:290px}
+      #heroCanvas{width:224px;height:224px}
     }
   </style>
 </head>
 <body>
-  <main class="home">
-    <section class="wrap">
-      <div class="sprite-stage">
-        <div class="sprite-glow"></div>
-        <div class="sprite-frame">
-          <canvas id="heroCanvas" width="512" height="512" aria-label="BitMe portrait"></canvas>
+  <section class="home page" id="homeScreen">
+    <div class="shell">
+      <div class="hero-portrait">
+        <div class="portrait-stage">
+          <div class="portrait-glow"></div>
+          <div class="portrait-frame">
+            <canvas id="heroCanvas" width="64" height="64" aria-label="Pixel portrait"></canvas>
+          </div>
         </div>
       </div>
 
-      <div class="copy">
-        <div class="eyebrow">Pixel Face Converter</div>
+      <div class="title-card">
+        <div class="tag"><span class="dot"></span> Pixel Face Converter</div>
         <h1><span>BIT</span>ME</h1>
-        <p class="sub">Take a face photo, convert it into a clean 16-bit pixel version, and export game-friendly code for a retro-style sprite workflow.</p>
+        <p class="sub">Take a face photo, convert it into a crisp 16-bit style sprite, and export game-friendly code for your retro workflow.</p>
         <p class="credit">Designed by Mario Garcia</p>
+        <div class="actions">
+          <button class="btn primary" id="launchBtn">Launch BitMe</button>
+          <button class="btn" id="howBtn">How It Works</button>
+        </div>
+        <div class="notice" id="heroNotice"></div>
       </div>
-    </section>
-  </main>
+    </div>
+  </section>
+
+  <section class="app page" id="appScreen">
+    <div class="app-shell">
+      <div class="topbar">
+        <div class="brand">
+          <h2>BitMe</h2>
+          <p>Capture your face and turn it into 16-bit sprite data.</p>
+        </div>
+        <div class="status" id="statusText">Ready. Launch camera or upload a photo.</div>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <div class="card-head">
+            <h3>Controls</h3>
+            <p>Use the camera or upload a photo, then convert it into a game-ready pixel sprite.</p>
+          </div>
+          <div class="controls">
+            <div class="row">
+              <button id="startCameraBtn" class="btn">Start Camera</button>
+              <button id="captureBtn" class="btn">Capture Face</button>
+              <label class="btn" style="display:inline-flex;justify-content:center;align-items:center;">
+                Upload Photo
+                <input id="fileInput" type="file" accept="image/*" hidden />
+              </label>
+            </div>
+            <div class="row">
+              <label>Sprite Size
+                <select id="spriteSize">
+                  <option value="16">16 × 16</option>
+                  <option value="24">24 × 24</option>
+                  <option value="32" selected>32 × 32</option>
+                  <option value="48">48 × 48</option>
+                  <option value="64">64 × 64</option>
+                </select>
+              </label>
+              <label>Preview Scale
+                <input id="scaleRange" type="range" min="6" max="20" value="12" />
+              </label>
+            </div>
+            <div class="row">
+              <button id="convertBtn" class="btn primary">Convert to 16-Bit Sprite</button>
+              <button id="downloadJsonBtn" class="btn">Export JSON</button>
+              <button id="downloadHeaderBtn" class="btn">Export C Header</button>
+            </div>
+          </div>
+          <div class="stage">
+            <div class="media-box">
+              <video id="video" autoplay playsinline muted></video>
+              <img id="sourcePreview" class="source" alt="Source preview" />
+              <canvas id="captureCanvas" width="256" height="256" hidden></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h3>16-Bit Sprite Preview</h3>
+            <p>Your image is reduced to a 16-color palette and converted into indexed sprite data.</p>
+          </div>
+          <div class="stage">
+            <div class="preview-box">
+              <canvas id="spriteCanvas" width="384" height="384"></canvas>
+            </div>
+            <div id="paletteGrid" class="palette"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="exports">
+          <div class="card-head" style="padding:0 0 10px 0">
+            <h3>Generated Game Data</h3>
+          </div>
+          <textarea id="codeOutput" spellcheck="false"></textarea>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <script>
-    const heroSpriteData = 
-{
-  "name": "bitme_face_sprite",
-  "width": 64,
-  "height": 64,
-  "paletteRGB565": [
-    "0xFFFF","0xA80A","0xFF7F","0x980A","0xA80C","0x988A","0xEFFF","0xA88A",
-    "0xA88C","0x990C","0xA98E","0xAA2E","0xFE7D","0xBB33","0x998C","0xCBB5"
-  ],
-  "paletteRGB": [
-    [255,255,255],[170,0,85],[255,238,255],[153,0,85],[170,0,102],[153,17,85],[238,255,255],[170,17,85],
-    [170,17,102],[153,34,102],[170,51,119],[170,68,119],[255,204,238],[187,102,153],[153,51,102],[204,119,170]
-  ],
-  "indexedPixels": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,13,13,6,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,2,14,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,15,1,13,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,11,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,12,3,1,2,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1,5,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,5,1,
-5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,4,12,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,1,1,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0,11,1,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,1,4,2,0,0,
-0,0,0,0,0,0,0,2,15,8,11,2,0,0,0,0,0,0,0,0,0,2,13,0,0,15,1,3,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,1,1,8,0,0,0,
-0,0,0,0,0,0,6,1,1,1,1,1,9,0,0,0,0,0,0,0,0,2,1,2,0,11,1,1,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,4,2,0,0,0,0,
-0,0,0,15,1,11,9,3,1,1,4,2,0,0,0,0,0,0,0,12,1,2,0,3,4,1,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0,14,1,1,1,0,0,0,0,
-0,0,9,1,1,1,4,15,12,1,1,1,1,9,0,0,0,0,0,0,0,5,1,0,0,4,1,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,12,9,6,1,1,1,11,0,0,0,0,
-10,1,1,1,1,1,1,1,4,1,1,1,4,3,1,0,0,0,0,0,0,1,3,0,2,1,1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,15,0,1,1,1,2,0,0,0,9,1,
-1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,15,0,0,0,0,0,11,1,3,0,3,1,1,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,12,1,12,0,1,1,1,2,0,0,2,1,1,
-1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,12,6,0,0,0,7,1,2,12,1,1,1,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,1,15,0,1,1,1,0,0,0,3,1,
-1,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,13,0,0,3,1,3,0,4,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,1,1,11,0,1,1,1,2,0,0,1,12,0,
-0,0,6,0,3,1,1,1,1,1,1,1,1,1,1,1,3,0,0,0,0,2,1,4,2,5,1,1,1,15,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1,1,5,0,1,1,1,2,0,0,0,0,0,0,0,0,
-0,0,0,5,1,1,1,1,1,1,1,1,1,1,1,12,0,0,0,0,2,1,1,5,2,1,1,1,1,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,12,1,1,1,0,1,1,1,11,0,0,0,0,0,0,0,0,0,
-0,0,0,1,1,1,1,1,1,1,1,1,1,1,2,0,0,0,0,0,1,1,1,0,1,1,1,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,1,1,1,2,13,1,1,1,0,0,0,0,0,0,0,0,0,0,
-0,0,6,11,1,1,1,1,1,1,1,1,1,1,1,12,0,0,0,0,0,1,1,1,2,1,1,1,1,5,0,0,0,0,0,0,0,0,0,0,0,0,14,1,1,1,7,0,1,1,1,15,0,0,0,0,0,0,0,0,0,0,
-0,0,2,1,1,1,1,1,1,1,1,1,1,1,13,0,0,0,0,0,0,1,1,1,11,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,12,0,15,1,1,1,3,2,12,1,1,3,2,0,0,0,0,0,0,0,0,
-0,2,4,1,1,1,1,1,1,1,1,1,5,0,0,0,0,0,1,1,1,5,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,11,0,2,1,1,1,1,3,6,11,8,1,4,0,0,0,0,0,0,0,0,0,0,2,
-1,1,1,1,1,1,1,1,1,1,3,0,0,0,0,0,1,1,1,1,1,1,1,1,1,2,0,0,0,0,0,0,0,0,0,3,2,0,1,1,1,1,8,5,6,12,8,1,1,2,0,0,0,0,0,0,0,0,0,1,1,1,
-1,1,1,1,1,1,1,1,1,1,0,0,0,0,2,1,1,1,1,1,1,1,1,1,15,0,0,0,0,0,0,0,0,0,1,12,0,1,1,1,1,1,1,1,0,0,15,1,1,5,2,0,0,0,0,15,1,1,1,1,1,1,
-1,1,1,1,1,1,7,0,0,0,0,3,1,1,1,1,1,1,1,1,1,10,0,0,0,0,0,0,0,0,1,3,0,5,1,1,1,1,1,1,1,14,2,0,0,12,5,5,6,0,15,1,4,1,1,1,1,1,1,1,1,1,1,3,
-0,0,0,0,4,1,1,1,1,1,1,1,1,1,1,5,0,0,0,0,0,0,0,0,0,0,1,1,0,2,4,1,1,1,1,1,1,1,1,1,8,3,11,12,12,14,1,4,1,1,1,1,1,1,1,1,1,1,1,1,15,0,0,0,
-3,1,1,1,1,1,1,1,1,1,1,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,4,12,6,7,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,0,0,10,1,
-1,1,1,1,1,1,1,1,1,1,1,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,4,1,0,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,9,1,
-1,1,1,1,1,1,1,1,1,1,1,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,5,0,5,4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,13,6,3,1,1,4,1,
-1,1,1,1,1,1,1,1,1,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,14,1,1,1,13,0,4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,15,8,1,1,4,4,1,1,1,
-1,1,1,1,1,1,15,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1,1,1,1,12,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-1,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,13,2,4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,2,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,5,5,1,1,1,1,1,
-1,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,12,10,1,1,1,1,1,1,12,
-6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,5,2,9,1,1,1,1,1,1,2,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,15,4,7,1,1,1,1,1,1,1,1,1,1,1,1,4,4,7,2,0,1,1,1,1,1,1,5,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,12,3,1,1,1,1,1,1,1,1,1,4,4,13,2,0,8,1,1,1,1,4,1,12,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,2,0,0,0,12,15,10,10,13,12,2,0,0,2,8,1,1,1,1,1,1,12,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,3,11,12,2,2,2,2,12,5,7,4,1,1,1,1,1,1,3,2,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,2,10,5,1,1,4,1,4,4,1,1,3,9,2,6,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-};
+    const heroSpriteData = {
+      name: "bitme_face_sprite",
+      width: 64,
+      height: 64,
+      paletteRGB565: ["0xFFFF","0xA80A","0xFF7F","0x980A","0xA80C","0x988A","0xEFFF","0xA88A","0xA88C","0x990C","0xA98E","0xAA2E","0xFE7D","0xBB33","0x998C","0xCBB5"],
+      indexedPixels: []
+    };
+
+    const homeScreen = document.getElementById('homeScreen');
+    const appScreen = document.getElementById('appScreen');
+    const launchBtn = document.getElementById('launchBtn');
+    const howBtn = document.getElementById('howBtn');
     const heroCanvas = document.getElementById('heroCanvas');
-    const ctx = heroCanvas.getContext('2d', { alpha: true });
-    ctx.imageSmoothingEnabled = false;
+    const heroCtx = heroCanvas.getContext('2d', { alpha:true });
+    heroCtx.imageSmoothingEnabled = false;
+    const heroNotice = document.getElementById('heroNotice');
 
-    function renderPerfectSprite(data){
-      const displaySize = heroCanvas.width;
-      const scale = Math.floor(displaySize / data.width);
-      const renderW = data.width * scale;
-      const renderH = data.height * scale;
-      const offsetX = Math.floor((displaySize - renderW) / 2);
-      const offsetY = Math.floor((displaySize - renderH) / 2);
+    const video = document.getElementById('video');
+    const sourcePreview = document.getElementById('sourcePreview');
+    const captureCanvas = document.getElementById('captureCanvas');
+    const captureCtx = captureCanvas.getContext('2d', { willReadFrequently:true });
+    const spriteCanvas = document.getElementById('spriteCanvas');
+    const spriteCtx = spriteCanvas.getContext('2d', { willReadFrequently:true });
+    spriteCtx.imageSmoothingEnabled = false;
+    const paletteGrid = document.getElementById('paletteGrid');
+    const spriteSizeSelect = document.getElementById('spriteSize');
+    const scaleRange = document.getElementById('scaleRange');
+    const codeOutput = document.getElementById('codeOutput');
+    const fileInput = document.getElementById('fileInput');
+    const statusText = document.getElementById('statusText');
 
-      ctx.clearRect(0, 0, heroCanvas.width, heroCanvas.height);
+    const state = { stream:null, hasSource:false, sourceDataURL:'', latestJSON:'', latestHeader:'', latestPalette:[], latestIndexed:[], latestWidth:0, latestHeight:0 };
 
-      for(let y = 0; y < data.height; y++){
-        for(let x = 0; x < data.width; x++){
-          const idx = data.indexedPixels[(y * data.width) + x] ?? 0;
-          if(idx === 0) continue; // transparent background
-          const color = data.paletteRGB[idx] || [255,255,255];
-          ctx.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
-          ctx.fillRect(offsetX + x * scale, offsetY + y * scale, scale, scale);
+    const heroGoldPalette = [
+      [0,0,0,0],[110,79,24,255],[255,244,215,255],[137,100,35,255],[168,128,52,255],[189,148,70,255],
+      [255,249,233,255],[178,136,58,255],[198,155,72,255],[214,169,84,255],[226,186,103,255],[237,198,123,255],
+      [255,230,184,255],[245,214,138,255],[203,162,88,255],[255,239,193,255]
+    ];
+
+    function setStatus(msg){ statusText.textContent = msg; }
+
+    function validateHeroData(data){
+      return data && data.width === 64 && data.height === 64 && Array.isArray(data.indexedPixels) && data.indexedPixels.length === 4096;
+    }
+
+    function drawHeroSprite(){
+      heroCtx.clearRect(0,0,64,64);
+      if(!validateHeroData(heroSpriteData)){
+        heroNotice.textContent = 'The portrait data embedded in this file is incomplete. The launch flow is fixed, but the exact hero image needs the full 64×64 sprite JSON to render perfectly.';
+        return;
+      }
+      heroNotice.textContent = '';
+      const imageData = heroCtx.createImageData(64,64);
+      for(let i=0;i<4096;i++){
+        const idx = heroSpriteData.indexedPixels[i] ?? 0;
+        const [r,g,b,a] = heroGoldPalette[idx] || heroGoldPalette[0];
+        const p=i*4;
+        imageData.data[p]=r;
+        imageData.data[p+1]=g;
+        imageData.data[p+2]=b;
+        imageData.data[p+3]=a;
+      }
+      heroCtx.putImageData(imageData,0,0);
+    }
+
+    launchBtn.addEventListener('click', () => {
+      homeScreen.style.display = 'none';
+      appScreen.classList.add('active');
+    });
+    howBtn.addEventListener('click', () => {
+      alert('1. Start Camera or Upload Photo\n2. Capture or select your image\n3. Press Convert to 16-Bit Sprite\n4. Export JSON or C Header');
+    });
+
+    async function startCamera(){
+      try{
+        const stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'user', width:{ideal:1280}, height:{ideal:1280}}, audio:false });
+        if(state.stream) state.stream.getTracks().forEach(t => t.stop());
+        state.stream = stream;
+        video.srcObject = stream;
+        video.style.display = 'block';
+        sourcePreview.style.display = 'none';
+        setStatus('Camera started. Frame your face and press Capture Face.');
+      }catch(e){
+        setStatus('Camera access failed. Use Upload Photo or run from GitHub Pages / localhost.');
+      }
+    }
+
+    function drawImageCoverToCanvas(image, ctx, targetW, targetH){
+      const iw = image.videoWidth || image.naturalWidth || image.width;
+      const ih = image.videoHeight || image.naturalHeight || image.height;
+      if(!iw || !ih) return;
+      const scale = Math.max(targetW / iw, targetH / ih);
+      const dw = iw * scale, dh = ih * scale;
+      const dx = (targetW - dw)/2, dy = (targetH - dh)/2;
+      ctx.clearRect(0,0,targetW,targetH);
+      ctx.drawImage(image, dx, dy, dw, dh);
+    }
+
+    function updateSourcePreviewFromCanvas(){
+      state.sourceDataURL = captureCanvas.toDataURL('image/png');
+      sourcePreview.src = state.sourceDataURL;
+      sourcePreview.style.display = 'block';
+      video.style.display = 'none';
+      state.hasSource = true;
+    }
+
+    function captureFace(){
+      if(video.readyState < 2){ setStatus('Camera is not ready yet.'); return; }
+      drawImageCoverToCanvas(video, captureCtx, 256, 256);
+      updateSourcePreviewFromCanvas();
+      setStatus('Face captured. Press Convert to 16-Bit Sprite.');
+    }
+
+    function loadUploadedImage(file){
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = new Image();
+        img.onload = () => {
+          drawImageCoverToCanvas(img, captureCtx, 256, 256);
+          updateSourcePreviewFromCanvas();
+          setStatus('Photo loaded. Press Convert to 16-Bit Sprite.');
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function quantizeChannel(value, levels = 16){
+      const step = 255 / (levels - 1);
+      return Math.round(value / step) * step;
+    }
+
+    function buildPaletteFromImageData(imageData){
+      const freq = new Map();
+      const data = imageData.data;
+      for(let i=0;i<data.length;i+=4){
+        const a=data[i+3]; if(a<10) continue;
+        const r=quantizeChannel(data[i],16), g=quantizeChannel(data[i+1],16), b=quantizeChannel(data[i+2],16);
+        const key=`${r},${g},${b}`;
+        freq.set(key,(freq.get(key)||0)+1);
+      }
+      let palette=[...freq.entries()].sort((a,b)=>b[1]-a[1]).slice(0,16).map(([k])=>k.split(',').map(Number));
+      while(palette.length<16) palette.push([0,0,0]);
+      return palette.slice(0,16);
+    }
+
+    function nearestPaletteIndex(r,g,b,palette){
+      let best=0, bestD=Infinity;
+      for(let i=0;i<palette.length;i++){
+        const [pr,pg,pb]=palette[i];
+        const d=(r-pr)*(r-pr)+(g-pg)*(g-pg)+(b-pb)*(b-pb);
+        if(d<bestD){ bestD=d; best=i; }
+      }
+      return best;
+    }
+
+    function rgb565(r,g,b){
+      const v=((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
+      return '0x'+v.toString(16).toUpperCase().padStart(4,'0');
+    }
+
+    function renderSprite(indexed,palette,width,height){
+      const scale = Number(scaleRange.value);
+      const renderW = width * scale, renderH = height * scale;
+      spriteCanvas.width = Math.max(384, renderW + 32);
+      spriteCanvas.height = Math.max(384, renderH + 32);
+      const xOffset = Math.floor((spriteCanvas.width - renderW)/2);
+      const yOffset = Math.floor((spriteCanvas.height - renderH)/2);
+      spriteCtx.clearRect(0,0,spriteCanvas.width,spriteCanvas.height);
+      for(let y=0;y<height;y++){
+        for(let x=0;x<width;x++){
+          const idx=indexed[y*width+x], color=palette[idx]||[0,0,0];
+          spriteCtx.fillStyle=`rgb(${color[0]},${color[1]},${color[2]})`;
+          spriteCtx.fillRect(xOffset+x*scale,yOffset+y*scale,scale,scale);
         }
       }
     }
 
-    renderPerfectSprite(heroSpriteData);
+    function renderPalette(palette){
+      paletteGrid.innerHTML='';
+      palette.forEach((color,index)=>{
+        const sw=document.createElement('div');
+        sw.className='swatch';
+        sw.innerHTML = `<div class="swatch-color" style="background:rgb(${color[0]},${color[1]},${color[2]})"></div><div class="swatch-label">#${index} ${rgb565(color[0],color[1],color[2])}</div>`;
+        paletteGrid.appendChild(sw);
+      });
+    }
+
+    function buildExports(palette,indexed,width,height){
+      const pal565=palette.map(([r,g,b])=>rgb565(r,g,b));
+      const jsonObj={name:'bitme_face_sprite',width,height,paletteRGB565:pal565,paletteRGB:palette,indexedPixels:indexed};
+      state.latestJSON=JSON.stringify(jsonObj,null,2);
+      state.latestHeader=`#ifndef BITME_FACE_SPRITE_H\n#define BITME_FACE_SPRITE_H\n\n#define BITME_FACE_SPRITE_WIDTH ${width}\n#define BITME_FACE_SPRITE_HEIGHT ${height}\n#define BITME_FACE_SPRITE_PALETTE_SIZE 16\n\nstatic const unsigned short bitme_face_sprite_palette[16] = {\n  ${pal565.join(', ')}\n};\n\nstatic const unsigned char bitme_face_sprite_pixels[${indexed.length}] = {\n  ${indexed.join(', ')}\n};\n\n#endif\n`;
+      codeOutput.value=state.latestHeader;
+    }
+
+    function convertToSprite(){
+      if(!state.hasSource){
+        if(video.readyState >= 2){ captureFace(); }
+        else { setStatus('No source image found.'); return; }
+      }
+      const size=Number(spriteSizeSelect.value);
+      const tmp=document.createElement('canvas');
+      tmp.width=size; tmp.height=size;
+      const tctx=tmp.getContext('2d', {willReadFrequently:true});
+      tctx.drawImage(captureCanvas,0,0,size,size);
+      const img=tctx.getImageData(0,0,size,size);
+      const palette=buildPaletteFromImageData(img);
+      const indexed=[];
+      for(let i=0;i<img.data.length;i+=4){
+        const a=img.data[i+3];
+        indexed.push(a<10 ? 0 : nearestPaletteIndex(img.data[i],img.data[i+1],img.data[i+2],palette));
+      }
+      state.latestPalette=palette; state.latestIndexed=indexed; state.latestWidth=size; state.latestHeight=size;
+      renderSprite(indexed,palette,size,size);
+      renderPalette(palette);
+      buildExports(palette,indexed,size,size);
+      setStatus('Conversion complete. Export JSON or C Header when ready.');
+    }
+
+    function downloadFile(name, content, type){
+      const blob = new Blob([content], {type});
+      const url = URL.createObjectURL(blob);
+      const a=document.createElement('a');
+      a.href=url; a.download=name; a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    document.getElementById('startCameraBtn').addEventListener('click', startCamera);
+    document.getElementById('captureBtn').addEventListener('click', captureFace);
+    document.getElementById('convertBtn').addEventListener('click', convertToSprite);
+    document.getElementById('downloadJsonBtn').addEventListener('click', ()=> state.latestJSON && downloadFile('bitme-sprite.json', state.latestJSON, 'application/json'));
+    document.getElementById('downloadHeaderBtn').addEventListener('click', ()=> state.latestHeader && downloadFile('bitme-sprite.h', state.latestHeader, 'text/plain'));
+    fileInput.addEventListener('change', e => {
+      const file=e.target.files && e.target.files[0];
+      if(file) loadUploadedImage(file);
+    });
+    scaleRange.addEventListener('input', ()=>{
+      if(state.latestIndexed.length) renderSprite(state.latestIndexed,state.latestPalette,state.latestWidth,state.latestHeight);
+    });
+
+    drawHeroSprite();
+    setStatus('Ready. Launch camera or upload a photo.');
   </script>
 </body>
 </html>
