@@ -4,313 +4,169 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BitMe | Designed by Mario Garcia</title>
-  <meta name="description" content="BitMe converts your face photo into a crisp 16-bit pixel portrait and exports game-friendly code." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
   <style>
     :root{
-      --bg:#090704;
-      --bg2:#120d08;
-      --panel:#161008;
-      --panel2:#1d150b;
-      --gold:#d6a84b;
-      --gold-2:#f3d88e;
-      --gold-3:#fff3cd;
-      --gold-4:#8f6825;
-      --text:#fff8e7;
-      --muted:#d5bf8b;
-      --line:rgba(243,216,142,.25);
-      --line-strong:rgba(243,216,142,.42);
-      --shadow:0 0 0 1px rgba(255,255,255,.03),0 18px 50px rgba(0,0,0,.45),0 0 40px rgba(214,168,75,.08);
+      --bg:#060607;
+      --bg2:#0d0c0a;
+      --panel:#14110d;
+      --line:rgba(255,222,141,.22);
+      --text:#fff7e8;
+      --muted:#d4c09a;
+      --gold:#f0d48b;
+      --gold2:#c79b43;
+      --shadow:0 12px 40px rgba(0,0,0,.45);
     }
-
     *{box-sizing:border-box;margin:0;padding:0}
     html,body{min-height:100%}
     body{
-      font-family:'Inter',system-ui,sans-serif;
+      font-family:Inter,sans-serif;
       background:
-        radial-gradient(circle at top, rgba(255,224,140,.08), transparent 28%),
-        linear-gradient(180deg, #050403 0%, #0a0704 50%, #100a06 100%);
+        radial-gradient(circle at 50% 0%, rgba(240,212,139,.08), transparent 28%),
+        linear-gradient(180deg,#050505 0%,#0a0907 55%,#0d0b09 100%);
       color:var(--text);
-      overflow-x:hidden;
     }
-
-    body::before{
-      content:"";
-      position:fixed; inset:0;
-      background:
-        linear-gradient(rgba(255,255,255,.016) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,.016) 1px, transparent 1px);
-      background-size:28px 28px;
-      pointer-events:none;
-      opacity:.22;
-    }
-
-    .page{
-      position:relative;
+    .home{
       min-height:100vh;
-      padding:24px;
+      padding:40px 18px 56px;
       display:flex;
-      align-items:center;
       justify-content:center;
     }
-
-    .hero{
+    .wrap{
       width:min(1100px,100%);
-      min-height:820px;
-      padding:42px 28px 28px;
-      border-radius:28px;
-      border:1px solid var(--line);
-      background:
-        linear-gradient(180deg, rgba(23,16,10,.94), rgba(12,8,5,.98));
-      box-shadow:var(--shadow);
-      position:relative;
-      overflow:hidden;
       display:flex;
       flex-direction:column;
       align-items:center;
-      text-align:center;
-      gap:22px;
+      gap:28px;
     }
-
-    .hero::before{
-      content:"";
-      position:absolute; inset:0;
-      background:
-        radial-gradient(circle at 50% 6%, rgba(255,238,190,.07), transparent 22%),
-        radial-gradient(circle at 50% 18%, rgba(214,168,75,.08), transparent 34%);
-      pointer-events:none;
-    }
-
-    .orb{
-      position:absolute;
-      border-radius:50%;
-      filter:blur(26px);
-      opacity:.5;
-      pointer-events:none;
-    }
-    .orb.a{width:180px;height:180px;background:rgba(255,224,145,.11);top:2%;left:10%}
-    .orb.b{width:130px;height:130px;background:rgba(214,168,75,.10);top:10%;right:12%}
-    .orb.c{width:220px;height:220px;background:rgba(255,244,210,.06);bottom:12%;right:8%}
-
-    .eyebrow{
+    .sprite-stage{
       position:relative;
-      z-index:2;
+      width:min(560px,92vw);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding-top:10px;
+      padding-bottom:10px;
+    }
+    .sprite-glow{
+      position:absolute;
+      width:min(430px,72vw);
+      aspect-ratio:1/1;
+      border-radius:50%;
+      background:
+        radial-gradient(circle, rgba(255,240,191,.22) 0%, rgba(240,212,139,.16) 28%, rgba(199,155,67,.12) 48%, transparent 70%);
+      filter:blur(22px);
+      transform:translateY(10px);
+      pointer-events:none;
+    }
+    .sprite-frame{
+      position:relative;
+      background:linear-gradient(180deg,rgba(21,17,13,.92),rgba(13,10,8,.98));
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:18px;
+      box-shadow:var(--shadow), 0 0 0 1px rgba(255,255,255,.02) inset;
+    }
+    #heroCanvas{
+      display:block;
+      width:512px;
+      height:512px;
+      max-width:min(78vw,512px);
+      max-height:min(78vw,512px);
+      aspect-ratio:1/1;
+      image-rendering:pixelated;
+      image-rendering:crisp-edges;
+      background:transparent;
+    }
+    .copy{
+      width:min(860px,100%);
+      text-align:center;
+      background:linear-gradient(180deg,rgba(14,12,10,.88),rgba(10,9,8,.96));
+      border:1px solid rgba(255,222,141,.16);
+      border-radius:24px;
+      box-shadow:var(--shadow);
+      padding:30px 22px 28px;
+    }
+    .eyebrow{
       display:inline-flex;
       align-items:center;
-      gap:10px;
+      gap:8px;
       padding:10px 14px;
       border-radius:999px;
-      border:1px solid var(--line-strong);
-      color:var(--gold-2);
-      background:rgba(243,216,142,.06);
       font-size:11px;
       font-weight:800;
-      letter-spacing:.1em;
+      letter-spacing:.08em;
       text-transform:uppercase;
-      margin-top:4px;
+      color:var(--gold);
+      background:rgba(240,212,139,.09);
+      border:1px solid rgba(240,212,139,.18);
+      margin-bottom:18px;
     }
     .eyebrow::before{
       content:"";
       width:8px;height:8px;border-radius:50%;
-      background:var(--gold-2);
-      box-shadow:0 0 12px rgba(243,216,142,.9);
+      background:var(--gold);
+      box-shadow:0 0 12px rgba(240,212,139,.6);
     }
-
-    .sprite-zone{
-      position:relative;
-      z-index:2;
-      width:min(100%,720px);
-      margin-top:6px;
-      display:flex;
-      justify-content:center;
-      align-items:flex-start;
-      min-height:360px;
-    }
-
-    .sprite-glow{
-      position:absolute;
-      top:36px;
-      left:50%;
-      transform:translateX(-50%);
-      width:380px;
-      height:300px;
-      border-radius:50%;
-      background:
-        radial-gradient(circle, rgba(255,244,210,.28) 0%, rgba(243,216,142,.2) 26%, rgba(214,168,75,.12) 48%, transparent 70%);
-      filter:blur(14px);
-      pointer-events:none;
-    }
-
-    .sprite-frame{
-      position:relative;
-      margin-top:10px;
-      display:grid;
-      place-items:center;
-      width:360px;
-      height:360px;
-    }
-
-    /* Crisp pixel rendering rules */
-    canvas.hero-sprite{
-      width:320px;
-      height:320px;
-      image-rendering: pixelated;
-      image-rendering: crisp-edges;
-      image-rendering: -moz-crisp-edges;
-      image-rendering: -webkit-optimize-contrast;
-      -ms-interpolation-mode: nearest-neighbor;
-      border-radius:0;
-      display:block;
-      filter:
-        drop-shadow(0 0 1px rgba(255,255,255,.08))
-        drop-shadow(0 0 10px rgba(255,225,150,.22))
-        drop-shadow(0 0 22px rgba(214,168,75,.18));
-      transform:translateZ(0);
-    }
-
-    .title-wrap{
-      position:relative;
-      z-index:2;
-      width:min(100%,820px);
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:18px;
-      margin-top:-6px;
-    }
-
-    .title-card{
-      width:min(100%,760px);
-      background:linear-gradient(180deg, rgba(10,7,5,.86), rgba(7,5,4,.92));
-      border:1px solid rgba(255,239,195,.12);
-      box-shadow:0 12px 28px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.025);
-      border-radius:20px;
-      padding:24px 22px 22px;
-      backdrop-filter:blur(8px);
-    }
-
-    .game-title{
-      font-family:'Press Start 2P', cursive;
-      font-size:clamp(22px,4vw,42px);
+    h1{
+      font-family:"Press Start 2P",cursive;
+      font-size:clamp(24px,4.6vw,46px);
       line-height:1.35;
-      color:var(--gold-3);
+      color:#fff8ec;
       text-shadow:
-        0 2px 0 rgba(0,0,0,.75),
-        0 4px 14px rgba(0,0,0,.72),
-        0 0 18px rgba(243,216,142,.20);
-      margin-bottom:14px;
+        0 2px 0 rgba(0,0,0,.65),
+        0 8px 18px rgba(0,0,0,.65),
+        0 0 26px rgba(240,212,139,.08);
+      margin-bottom:16px;
     }
-
-    .game-title span{
-      color:var(--gold);
-      text-shadow:
-        0 2px 0 rgba(0,0,0,.8),
-        0 6px 18px rgba(0,0,0,.72),
-        0 0 22px rgba(214,168,75,.28);
+    h1 span{color:var(--gold)}
+    .sub{
+      color:var(--muted);
+      font-size:clamp(15px,2vw,18px);
+      line-height:1.8;
+      max-width:680px;
+      margin:0 auto 12px;
+      text-shadow:0 2px 10px rgba(0,0,0,.45);
     }
-
-    .subtitle{
-      font-size:17px;
-      line-height:1.78;
-      color:#f4ead1;
-      text-shadow:0 2px 10px rgba(0,0,0,.55);
-      max-width:660px;
-      margin:0 auto;
-    }
-
     .credit{
-      color:var(--gold-2);
-      font-size:14px;
-      font-weight:800;
+      color:#f8ddb0;
+      font-weight:700;
       letter-spacing:.04em;
-      text-shadow:0 2px 8px rgba(0,0,0,.45);
+      margin-top:8px;
+      text-shadow:0 2px 10px rgba(0,0,0,.45);
     }
-
-    .actions{
-      display:flex;
-      flex-wrap:wrap;
-      justify-content:center;
-      gap:14px;
-    }
-
-    .btn{
-      appearance:none;
-      border:none;
-      cursor:pointer;
-      border-radius:14px;
-      padding:14px 18px;
-      font:700 15px/1 'Inter',sans-serif;
-      color:var(--text);
-      background:linear-gradient(180deg, #261b0f, #171007);
-      border:1px solid rgba(243,216,142,.22);
-      box-shadow:0 10px 24px rgba(0,0,0,.28), 0 0 0 1px rgba(255,255,255,.02);
-      transition:transform .15s ease, border-color .15s ease, box-shadow .15s ease;
-    }
-    .btn:hover{
-      transform:translateY(-1px);
-      border-color:rgba(243,216,142,.42);
-      box-shadow:0 14px 28px rgba(0,0,0,.33),0 0 20px rgba(214,168,75,.08);
-    }
-
-    .footer-note{
-      position:relative;
-      z-index:2;
-      margin-top:auto;
-      color:#bca46b;
-      font-size:12px;
-      opacity:.95;
-    }
-
-    @media (max-width: 640px){
-      .page{padding:14px}
-      .hero{padding:26px 14px 20px; min-height:760px}
-      .sprite-zone{min-height:270px}
-      .sprite-frame{width:250px;height:250px}
-      canvas.hero-sprite{width:224px;height:224px}
-      .sprite-glow{width:260px;height:200px; top:28px}
-      .title-card{padding:18px 14px}
-      .subtitle{font-size:15px}
+    @media (max-width:640px){
+      .home{padding-top:24px}
+      .sprite-frame{padding:12px;border-radius:18px}
+      #heroCanvas{width:384px;height:384px;max-width:86vw;max-height:86vw}
+      .copy{padding:24px 16px 22px}
     }
   </style>
 </head>
 <body>
-  <main class="page">
-    <section class="hero">
-      <div class="orb a"></div>
-      <div class="orb b"></div>
-      <div class="orb c"></div>
-
-      <div class="eyebrow">Pixel Face Converter</div>
-
-      <div class="sprite-zone" aria-hidden="true">
+  <main class="home">
+    <section class="wrap">
+      <div class="sprite-stage">
         <div class="sprite-glow"></div>
         <div class="sprite-frame">
-          <canvas id="heroSprite" class="hero-sprite" width="64" height="64"></canvas>
+          <canvas id="heroCanvas" width="512" height="512" aria-label="BitMe portrait"></canvas>
         </div>
       </div>
 
-      <div class="title-wrap">
-        <div class="title-card">
-          <h1 class="game-title"><span>BIT</span>ME</h1>
-          <p class="subtitle">
-            Take a face photo, convert it into a clean 16-bit pixel version,
-            and export game-friendly code for a retro-style sprite workflow.
-          </p>
-        </div>
-        <div class="credit">Designed by Mario Garcia</div>
-        <div class="actions">
-          <button class="btn" type="button">Launch BitMe</button>
-        </div>
+      <div class="copy">
+        <div class="eyebrow">Pixel Face Converter</div>
+        <h1><span>BIT</span>ME</h1>
+        <p class="sub">Take a face photo, convert it into a clean 16-bit pixel version, and export game-friendly code for a retro-style sprite workflow.</p>
+        <p class="credit">Designed by Mario Garcia</p>
       </div>
-
-      <div class="footer-note">Top-center portrait • Gold glow • Pixel-perfect 64×64 rendering</div>
     </section>
   </main>
 
   <script>
-    const heroSpriteData = {
+    const heroSpriteData = 
+{
   "name": "bitme_face_sprite",
   "width": 64,
   "height": 64,
@@ -322,222 +178,12 @@
     [255,255,255],[170,0,85],[255,238,255],[153,0,85],[170,0,102],[153,17,85],[238,255,255],[170,17,85],
     [170,17,102],[153,34,102],[170,51,119],[170,68,119],[255,204,238],[187,102,153],[153,51,102],[204,119,170]
   ],
-  "indexedPixels": [
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-0,
-2,13,13,6,0,0,0,0,0,0,0,0,0,2,14,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,15,1,13,0,0,
+  "indexedPixels": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,13,13,6,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,2,14,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,15,1,13,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,11,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,12,3,1,2,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1,5,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,5,1,
 5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,4,12,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,1,1,0,0,
@@ -575,58 +221,35 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,11,2,0,0,0,12,15,10,10,13,12,2,0,0,2,8,1,1,1,1,1,1,12,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,3,11,12,2,2,2,2,12,5,7,4,1,1,1,1,1,1,3,2,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,2,10,5,1,1,4,1,4,4,1,1,3,9,2,6,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-]
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 };
+    const heroCanvas = document.getElementById('heroCanvas');
+    const ctx = heroCanvas.getContext('2d', { alpha: true });
+    ctx.imageSmoothingEnabled = false;
 
-    // Gold remap. Index 0 is treated as transparent for the homepage hero.
-    const heroGoldPalette = [
-      [0,0,0,0],
-      [111,80,25,255],
-      [255,244,214,255],
-      [136,99,34,255],
-      [166,126,48,255],
-      [150,110,40,255],
-      [255,250,236,255],
-      [177,136,59,255],
-      [190,147,68,255],
-      [205,162,83,255],
-      [221,180,104,255],
-      [233,193,121,255],
-      [255,228,180,255],
-      [244,214,140,255],
-      [199,157,82,255],
-      [255,239,194,255]
-    ];
+    function renderPerfectSprite(data){
+      const displaySize = heroCanvas.width;
+      const scale = Math.floor(displaySize / data.width);
+      const renderW = data.width * scale;
+      const renderH = data.height * scale;
+      const offsetX = Math.floor((displaySize - renderW) / 2);
+      const offsetY = Math.floor((displaySize - renderH) / 2);
 
-    function renderHeroSprite() {
-      const canvas = document.getElementById('heroSprite');
-      const ctx = canvas.getContext('2d', { alpha: true });
-      ctx.imageSmoothingEnabled = false;
-      canvas.width = 64;
-      canvas.height = 64;
+      ctx.clearRect(0, 0, heroCanvas.width, heroCanvas.height);
 
-      const img = ctx.createImageData(64, 64);
-      const pixels = heroSpriteData.indexedPixels;
-      if (!Array.isArray(pixels) || pixels.length !== 4096) {
-        console.warn('Expected 4096 indexed pixels, got:', pixels && pixels.length);
+      for(let y = 0; y < data.height; y++){
+        for(let x = 0; x < data.width; x++){
+          const idx = data.indexedPixels[(y * data.width) + x] ?? 0;
+          if(idx === 0) continue; // transparent background
+          const color = data.paletteRGB[idx] || [255,255,255];
+          ctx.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+          ctx.fillRect(offsetX + x * scale, offsetY + y * scale, scale, scale);
+        }
       }
-
-      for (let i = 0; i < 4096; i++) {
-        const index = pixels[i] ?? 0;
-        const color = heroGoldPalette[index] || heroGoldPalette[0];
-        const offset = i * 4;
-        img.data[offset] = color[0];
-        img.data[offset + 1] = color[1];
-        img.data[offset + 2] = color[2];
-        img.data[offset + 3] = color[3];
-      }
-
-      ctx.clearRect(0, 0, 64, 64);
-      ctx.putImageData(img, 0, 0);
     }
 
-    renderHeroSprite();
+    renderPerfectSprite(heroSpriteData);
   </script>
 </body>
 </html>
