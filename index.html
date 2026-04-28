@@ -2,98 +2,1318 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BitMe — designed by Mario Garcia</title>
-  <meta name="description" content="Capture a face, convert it into a 16-bit pixel sprite, and export usable game-ready code." />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+  />
+  <title>BitMe | Designed by Mario Garcia</title>
+  <meta
+    name="description"
+    content="BitMe converts your face photo into a 16-bit pixel sprite and exports game-friendly code."
+  />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    :root{
+      --bg:#071113;
+      --bg2:#0b181b;
+      --bg3:#102126;
+      --panel:#0d171a;
+      --panel2:#101f24;
+      --line:#1fe3d3;
+      --line-soft:rgba(31,227,211,.35);
+      --line-faint:rgba(31,227,211,.14);
+      --text:#d8fffb;
+      --muted:#87b9b5;
+      --accent:#45fff0;
+      --accent2:#7afff5;
+      --shadow:0 0 0 1px rgba(31,227,211,.18), 0 0 22px rgba(31,227,211,.08);
+      --danger:#ff7a9c;
+      --success:#79ffb0;
+    }
+
+    *{
+      box-sizing:border-box;
+      margin:0;
+      padding:0;
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    html,body{
+      width:100%;
+      min-height:100%;
+      background:
+        radial-gradient(circle at top, rgba(69,255,240,.08), transparent 34%),
+        linear-gradient(180deg, #050c0e 0%, #071113 35%, #091417 100%);
+      color:var(--text);
+      font-family:'Inter',sans-serif;
+      overflow-x:hidden;
+    }
+
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      background:
+        linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
+      background-size:28px 28px;
+      pointer-events:none;
+      opacity:.25;
+      z-index:0;
+    }
+
+    body::after{
+      content:"";
+      position:fixed;
+      inset:0;
+      background:repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,.014) 0px,
+        rgba(255,255,255,.014) 1px,
+        transparent 2px,
+        transparent 4px
+      );
+      pointer-events:none;
+      opacity:.35;
+      z-index:0;
+    }
+
+    .hidden{
+      display:none !important;
+    }
+
+    .screen{
+      position:relative;
+      z-index:1;
+      min-height:100vh;
+      width:100%;
+    }
+
+    .home{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      overflow:hidden;
+      transition:opacity .6s ease, transform .6s ease;
+    }
+
+    .home.fade-out{
+      opacity:0;
+      pointer-events:none;
+      transform:scale(1.02);
+    }
+
+    .pixel-orb{
+      position:absolute;
+      border:1px solid var(--line-faint);
+      background:rgba(31,227,211,.04);
+      box-shadow:0 0 26px rgba(31,227,211,.06);
+      image-rendering:pixelated;
+      animation:floaty 7s ease-in-out infinite;
+    }
+
+    .pixel-orb.a{ width:78px; height:78px; left:8%; top:14%; animation-delay:0s; }
+    .pixel-orb.b{ width:38px; height:38px; right:14%; top:18%; animation-delay:-1s; }
+    .pixel-orb.c{ width:54px; height:54px; left:16%; bottom:18%; animation-delay:-2.2s; }
+    .pixel-orb.d{ width:92px; height:92px; right:8%; bottom:14%; animation-delay:-3.2s; }
+
+    @keyframes floaty{
+      0%,100%{ transform:translateY(0px); }
+      50%{ transform:translateY(-14px); }
+    }
+
+    .home-card{
+      width:min(980px,100%);
+      border:1px solid var(--line-soft);
+      background:
+        linear-gradient(180deg, rgba(14,30,34,.92), rgba(8,17,20,.96));
+      box-shadow:
+        0 0 0 1px rgba(31,227,211,.06),
+        0 0 34px rgba(31,227,211,.08),
+        inset 0 0 0 1px rgba(255,255,255,.02);
+      border-radius:24px;
+      overflow:hidden;
+      display:grid;
+      grid-template-columns:1.15fr .85fr;
+      min-height:620px;
+      position:relative;
+    }
+
+    .home-left{
+      padding:52px 42px 42px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:22px;
+      position:relative;
+    }
+
+    .home-left::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(135deg, rgba(69,255,240,.05), transparent 45%),
+        radial-gradient(circle at 20% 15%, rgba(69,255,240,.12), transparent 30%);
+      pointer-events:none;
+    }
+
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 14px;
+      width:max-content;
+      border:1px solid var(--line-soft);
+      border-radius:999px;
+      color:var(--accent2);
+      background:rgba(31,227,211,.08);
+      font-size:11px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      font-weight:700;
+      z-index:1;
+    }
+
+    .tag .dot{
+      width:8px;
+      height:8px;
+      background:var(--accent);
+      box-shadow:0 0 10px rgba(69,255,240,.8);
+      border-radius:50%;
+    }
+
+    .game-title{
+      font-family:'Press Start 2P', cursive;
+      font-size:clamp(30px, 6vw, 62px);
+      line-height:1.18;
+      color:var(--accent2);
+      text-shadow:
+        0 0 0 #000,
+        0 0 10px rgba(69,255,240,.18),
+        0 0 24px rgba(69,255,240,.14);
+      z-index:1;
+    }
+
+    .game-title span{
+      color:#ffffff;
+      text-shadow:
+        0 0 8px rgba(122,255,245,.15),
+        0 0 18px rgba(69,255,240,.08);
+    }
+
+    .home-copy{
+      color:var(--muted);
+      font-size:17px;
+      line-height:1.8;
+      max-width:560px;
+      z-index:1;
+    }
+
+    .credit{
+      color:#bffef8;
+      font-size:14px;
+      font-weight:700;
+      letter-spacing:.03em;
+      z-index:1;
+    }
+
+    .home-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:14px;
+      margin-top:4px;
+      z-index:1;
+    }
+
+    .btn{
+      appearance:none;
+      border:none;
+      outline:none;
+      cursor:pointer;
+      font:inherit;
+      font-weight:700;
+      border-radius:14px;
+      padding:14px 18px;
+      color:var(--text);
+      background:linear-gradient(180deg, #132026, #0c1518);
+      border:1px solid rgba(31,227,211,.25);
+      box-shadow:var(--shadow);
+      transition:transform .12s ease, box-shadow .18s ease, border-color .18s ease;
+    }
+
+    .btn:hover{
+      transform:translateY(-1px);
+      border-color:rgba(69,255,240,.45);
+      box-shadow:
+        0 0 0 1px rgba(69,255,240,.24),
+        0 0 26px rgba(69,255,240,.12);
+    }
+
+    .btn:active{
+      transform:translateY(1px);
+    }
+
+    .btn-primary{
+      background:linear-gradient(180deg, rgba(69,255,240,.18), rgba(13,28,32,.9));
+      color:#eafffd;
+    }
+
+    .btn-accent{
+      background:linear-gradient(180deg, rgba(31,227,211,.25), rgba(12,21,24,.92));
+      color:#e8ffff;
+    }
+
+    .ghost-btn{
+      background:transparent;
+    }
+
+    .home-right{
+      border-left:1px solid var(--line-faint);
+      padding:30px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      position:relative;
+      background:
+        linear-gradient(180deg, rgba(9,18,21,.88), rgba(7,12,14,.98));
+    }
+
+    .pixel-demo{
+      width:min(360px, 100%);
+      aspect-ratio:1/1;
+      border:1px solid var(--line-soft);
+      border-radius:18px;
+      background:
+        linear-gradient(180deg, rgba(17,34,39,.95), rgba(10,18,21,.98));
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.03),
+        0 0 26px rgba(69,255,240,.08);
+      display:grid;
+      place-items:center;
+      overflow:hidden;
+      position:relative;
+    }
+
+    .pixel-demo::before{
+      content:"16-BIT PREVIEW";
+      position:absolute;
+      top:14px;
+      left:14px;
+      font-family:'Press Start 2P', cursive;
+      font-size:10px;
+      color:var(--accent2);
+      opacity:.88;
+    }
+
+    .face-grid{
+      width:70%;
+      display:grid;
+      grid-template-columns:repeat(12, 1fr);
+      gap:4px;
+      image-rendering:pixelated;
+      margin-top:18px;
+    }
+
+    .px{
+      width:100%;
+      aspect-ratio:1/1;
+      background:#1d3135;
+      border:1px solid rgba(255,255,255,.02);
+    }
+
+    .home-footer-note{
+      position:absolute;
+      bottom:16px;
+      left:50%;
+      transform:translateX(-50%);
+      font-size:11px;
+      color:#75b8b1;
+      text-align:center;
+      width:100%;
+      padding:0 18px;
+    }
+
+    .app{
+      display:none;
+      padding:24px;
+    }
+
+    .app.active{
+      display:block;
+    }
+
+    .app-shell{
+      width:min(1250px,100%);
+      margin:0 auto;
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      border:1px solid var(--line-soft);
+      background:rgba(10,20,23,.86);
+      backdrop-filter:blur(10px);
+      border-radius:20px;
+      padding:18px 20px;
+      box-shadow:var(--shadow);
+      position:sticky;
+      top:14px;
+      z-index:10;
+    }
+
+    .brand-wrap{
+      display:flex;
+      align-items:center;
+      gap:16px;
+      min-width:0;
+    }
+
+    .brand-badge{
+      width:52px;
+      height:52px;
+      border-radius:14px;
+      border:1px solid var(--line-soft);
+      background:
+        linear-gradient(180deg, rgba(69,255,240,.18), rgba(10,18,20,.98));
+      display:grid;
+      place-items:center;
+      font-family:'Press Start 2P', cursive;
+      color:var(--accent2);
+      font-size:14px;
+      box-shadow:0 0 20px rgba(69,255,240,.08);
+      flex-shrink:0;
+    }
+
+    .brand-copy h1{
+      font-family:'Press Start 2P', cursive;
+      font-size:clamp(18px, 2.4vw, 24px);
+      line-height:1.2;
+      color:#eafffd;
+    }
+
+    .brand-copy p{
+      color:var(--muted);
+      font-size:13px;
+      margin-top:6px;
+    }
+
+    .status{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-size:12px;
+      color:#9de8e1;
+      text-align:right;
+    }
+
+    .status-dot{
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      background:var(--success);
+      box-shadow:0 0 12px rgba(121,255,176,.75);
+      flex-shrink:0;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:1.05fr .95fr;
+      gap:18px;
+    }
+
+    .card{
+      border:1px solid var(--line-soft);
+      background:
+        linear-gradient(180deg, rgba(11,22,25,.95), rgba(8,16,19,.98));
+      border-radius:20px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    .section-head{
+      padding:18px 18px 0;
+    }
+
+    .section-head h2{
+      font-family:'Press Start 2P', cursive;
+      font-size:14px;
+      line-height:1.5;
+      color:#eafffd;
+    }
+
+    .section-head p{
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.6;
+      margin-top:10px;
+    }
+
+    .controls{
+      padding:18px;
+      display:grid;
+      gap:14px;
+    }
+
+    .control-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    .control-row label{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      color:#c1fdfa;
+      font-size:12px;
+      min-width:160px;
+      flex:1;
+    }
+
+    .control-row select,
+    .control-row input[type="range"],
+    .control-row textarea{
+      width:100%;
+    }
+
+    select,
+    input[type="range"],
+    textarea{
+      background:#0a1417;
+      color:#eafffd;
+      border:1px solid rgba(31,227,211,.28);
+      border-radius:12px;
+      padding:12px;
+      font:inherit;
+      outline:none;
+    }
+
+    input[type="range"]{
+      padding:10px;
+    }
+
+    .upload-label{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .stage{
+      padding:18px;
+      display:grid;
+      gap:16px;
+    }
+
+    .media-box,
+    .sprite-box{
+      border:1px solid var(--line-faint);
+      border-radius:18px;
+      background:
+        linear-gradient(180deg, rgba(15,26,30,.9), rgba(8,15,18,.97));
+      min-height:380px;
+      position:relative;
+      overflow:hidden;
+      display:grid;
+      place-items:center;
+    }
+
+    .media-box::before,
+    .sprite-box::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(rgba(255,255,255,.01) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.01) 1px, transparent 1px);
+      background-size:18px 18px;
+      pointer-events:none;
+    }
+
+    video,
+    .source-img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+      background:#081114;
+    }
+
+    .source-img{
+      display:none;
+    }
+
+    #spriteCanvas{
+      width:min(100%, 420px);
+      height:auto;
+      image-rendering:pixelated;
+      image-rendering:crisp-edges;
+      background:#0a1316;
+      border:1px solid rgba(31,227,211,.18);
+      border-radius:12px;
+      box-shadow:0 0 24px rgba(69,255,240,.08);
+    }
+
+    .palette-wrap{
+      display:grid;
+      gap:10px;
+    }
+
+    .palette-grid{
+      display:grid;
+      grid-template-columns:repeat(8, minmax(0, 1fr));
+      gap:10px;
+    }
+
+    .swatch{
+      border:1px solid rgba(31,227,211,.2);
+      border-radius:12px;
+      overflow:hidden;
+      background:#0b1619;
+      box-shadow:0 0 12px rgba(69,255,240,.04);
+    }
+
+    .swatch-color{
+      height:38px;
+      border-bottom:1px solid rgba(255,255,255,.05);
+    }
+
+    .swatch-label{
+      padding:8px 8px 9px;
+      font-size:11px;
+      text-align:center;
+      color:#b6f3ed;
+      line-height:1.35;
+    }
+
+    .exports{
+      display:grid;
+      gap:12px;
+      padding:18px;
+    }
+
+    .exports textarea{
+      min-height:260px;
+      resize:vertical;
+      line-height:1.6;
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size:12px;
+    }
+
+    .info-grid{
+      display:grid;
+      grid-template-columns:repeat(3, 1fr);
+      gap:14px;
+      padding:18px;
+    }
+
+    .info-card{
+      border:1px solid var(--line-faint);
+      border-radius:16px;
+      padding:16px;
+      background:#0b1619;
+    }
+
+    .info-card h3{
+      font-family:'Press Start 2P', cursive;
+      font-size:12px;
+      line-height:1.5;
+      color:#ddfffc;
+      margin-bottom:10px;
+    }
+
+    .info-card p{
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.7;
+    }
+
+    .footer-note{
+      text-align:center;
+      color:#78aaa6;
+      font-size:12px;
+      padding:6px 12px 10px;
+    }
+
+    @media (max-width: 980px){
+      .home-card{
+        grid-template-columns:1fr;
+      }
+
+      .home-right{
+        border-left:none;
+        border-top:1px solid var(--line-faint);
+        min-height:320px;
+      }
+
+      .grid{
+        grid-template-columns:1fr;
+      }
+
+      .info-grid{
+        grid-template-columns:1fr;
+      }
+
+      .palette-grid{
+        grid-template-columns:repeat(4, minmax(0,1fr));
+      }
+
+      .topbar{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+
+      .status{
+        text-align:left;
+      }
+    }
+
+    @media (max-width: 640px){
+      .home-left{
+        padding:34px 24px 28px;
+      }
+
+      .home-right{
+        padding:20px;
+      }
+
+      .game-title{
+        font-size:clamp(24px, 10vw, 44px);
+      }
+
+      .home-copy{
+        font-size:15px;
+      }
+
+      .app{
+        padding:14px;
+      }
+
+      .topbar{
+        padding:16px;
+      }
+
+      .control-row{
+        flex-direction:column;
+      }
+
+      .palette-grid{
+        grid-template-columns:repeat(2, minmax(0,1fr));
+      }
+    }
+  </style>
 </head>
 <body>
-  <div class="shell">
-    <header class="hero">
-      <div class="hero-copy">
-        <p class="eyebrow">16-bit face capture studio</p>
-        <h1>BitMe</h1>
-        <p class="sub">Turn a face photo into a clean 16-color sprite sheet preview and export game-friendly code.</p>
-        <p class="credit">designed by Mario Garcia</p>
-      </div>
-      <div class="controls card">
-        <div class="field-row">
-          <button id="startCameraBtn" class="btn btn-primary">Start Camera</button>
-          <button id="captureBtn" class="btn">Capture Face</button>
-          <label class="btn upload-btn">
-            Upload Photo
-            <input id="fileInput" type="file" accept="image/*" hidden />
-          </label>
+  <section id="homeScreen" class="screen home">
+    <div class="pixel-orb a"></div>
+    <div class="pixel-orb b"></div>
+    <div class="pixel-orb c"></div>
+    <div class="pixel-orb d"></div>
+
+    <div class="home-card">
+      <div class="home-left">
+        <div class="tag">
+          <span class="dot"></span>
+          Pixel Face Converter
         </div>
-        <div class="field-row sliders">
-          <label>Sprite Size
-            <select id="spriteSize">
-              <option value="16">16 × 16</option>
-              <option value="24">24 × 24</option>
-              <option value="32" selected>32 × 32</option>
-              <option value="48">48 × 48</option>
-            </select>
-          </label>
-          <label>Pixel Scale
-            <input id="scaleRange" type="range" min="8" max="20" value="12" />
-          </label>
-        </div>
-        <div class="field-row">
-          <button id="convertBtn" class="btn btn-accent">Convert to 16-Bit Sprite</button>
-          <button id="downloadJsonBtn" class="btn">Export JSON</button>
-          <button id="downloadHeaderBtn" class="btn">Export C Header</button>
+
+        <h1 class="game-title">
+          <span>BIT</span>ME
+        </h1>
+
+        <p class="home-copy">
+          Take a face photo, convert it into a clean 16-bit pixel version,
+          and export game-friendly code that can be used inside a retro-style app or sprite workflow.
+        </p>
+
+        <p class="credit">Designed by Mario Garcia</p>
+
+        <div class="home-actions">
+          <button id="launchBtn" class="btn btn-primary">Launch BitMe</button>
+          <button id="howBtn" class="btn ghost-btn">How It Works</button>
         </div>
       </div>
-    </header>
 
-    <main class="workspace">
-      <section class="panel card">
-        <h2>Camera / Source</h2>
-        <div class="media-wrap">
-          <video id="video" autoplay playsinline muted></video>
-          <img id="sourcePreview" alt="Source preview" />
-          <canvas id="captureCanvas" width="256" height="256" hidden></canvas>
+      <div class="home-right">
+        <div class="pixel-demo">
+          <div class="face-grid" id="faceGrid"></div>
         </div>
-      </section>
-
-      <section class="panel card">
-        <h2>16-Bit Sprite Preview</h2>
-        <div class="preview-wrap">
-          <canvas id="spriteCanvas" width="384" height="384"></canvas>
+        <div class="home-footer-note">
+          Simple interface • Dark neon aesthetic • 16-color sprite export
         </div>
-        <div id="paletteGrid" class="palette-grid"></div>
-      </section>
-    </main>
-
-    <section class="exports card">
-      <div class="export-head">
-        <h2>Generated Game Data</h2>
-        <p>Outputs a 16-color RGB565 palette plus indexed pixel data for retro game pipelines.</p>
       </div>
-      <textarea id="codeOutput" spellcheck="false"></textarea>
-    </section>
+    </div>
+  </section>
 
-    <section class="info card">
-      <div class="info-grid">
-        <article>
-          <h3>Simple</h3>
-          <p>One page, direct controls, no setup-heavy framework.</p>
-        </article>
-        <article>
-          <h3>Accurate</h3>
-          <p>Quantizes the image to 16 colors and maps every output pixel to the nearest palette color.</p>
-        </article>
-        <article>
-          <h3>Useful</h3>
-          <p>Exports a C-style header and a JSON package with width, height, palette, and indexed pixel data.</p>
-        </article>
+  <section id="appScreen" class="screen app">
+    <div class="app-shell">
+      <div class="topbar card">
+        <div class="brand-wrap">
+          <div class="brand-badge">BM</div>
+          <div class="brand-copy">
+            <h1>BitMe</h1>
+            <p>Capture your face and turn it into 16-bit sprite data</p>
+          </div>
+        </div>
+
+        <div class="status">
+          <span class="status-dot"></span>
+          <span id="statusText">Ready. Launch camera or upload a photo.</span>
+        </div>
       </div>
-    </section>
-  </div>
 
-  <script src="app.js"></script>
+      <div class="grid">
+        <div class="card">
+          <div class="section-head">
+            <h2>Controls</h2>
+            <p>Use the camera or upload a photo, then convert it into a game-ready pixel sprite.</p>
+          </div>
+
+          <div class="controls">
+            <div class="control-row">
+              <button id="startCameraBtn" class="btn">Start Camera</button>
+              <button id="captureBtn" class="btn">Capture Face</button>
+              <label class="btn upload-label">
+                Upload Photo
+                <input id="fileInput" type="file" accept="image/*" hidden />
+              </label>
+            </div>
+
+            <div class="control-row">
+              <label>
+                Sprite Size
+                <select id="spriteSize">
+                  <option value="16">16 × 16</option>
+                  <option value="24">24 × 24</option>
+                  <option value="32" selected>32 × 32</option>
+                  <option value="48">48 × 48</option>
+                  <option value="64">64 × 64</option>
+                </select>
+              </label>
+
+              <label>
+                Preview Pixel Scale
+                <input id="scaleRange" type="range" min="6" max="20" value="12" />
+              </label>
+            </div>
+
+            <div class="control-row">
+              <button id="convertBtn" class="btn btn-accent">Convert to 16-Bit Sprite</button>
+              <button id="downloadJsonBtn" class="btn">Export JSON</button>
+              <button id="downloadHeaderBtn" class="btn">Export C Header</button>
+            </div>
+          </div>
+
+          <div class="stage">
+            <div class="media-box">
+              <video id="video" autoplay playsinline muted></video>
+              <img id="sourcePreview" class="source-img" alt="Source preview" />
+              <canvas id="captureCanvas" width="256" height="256" class="hidden"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-head">
+            <h2>16-Bit Sprite Preview</h2>
+            <p>Your image is reduced to a 16-color palette and converted into indexed sprite data.</p>
+          </div>
+
+          <div class="stage">
+            <div class="sprite-box">
+              <canvas id="spriteCanvas" width="384" height="384"></canvas>
+            </div>
+
+            <div class="palette-wrap">
+              <div class="section-head" style="padding:0;">
+                <h2 style="font-size:12px;">Palette</h2>
+              </div>
+              <div id="paletteGrid" class="palette-grid"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card exports">
+        <div class="section-head" style="padding:0;">
+          <h2>Generated Game Data</h2>
+          <p>Exports a 16-color RGB565 palette and indexed pixel array.</p>
+        </div>
+        <textarea id="codeOutput" spellcheck="false" placeholder="Generated code will appear here after conversion."></textarea>
+      </div>
+
+      <div class="card">
+        <div class="info-grid">
+          <div class="info-card">
+            <h3>Simple</h3>
+            <p>One-page setup with direct controls and a clean launch flow.</p>
+          </div>
+          <div class="info-card">
+            <h3>Accurate</h3>
+            <p>Builds a 16-color palette from the image and maps each pixel to the nearest indexed color.</p>
+          </div>
+          <div class="info-card">
+            <h3>Useful</h3>
+            <p>Outputs a JSON package and C-style header you can use in retro or stylized game projects.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-note">
+        BitMe • Designed by Mario Garcia
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const homeScreen = document.getElementById('homeScreen');
+    const appScreen = document.getElementById('appScreen');
+    const launchBtn = document.getElementById('launchBtn');
+    const howBtn = document.getElementById('howBtn');
+
+    const faceGrid = document.getElementById('faceGrid');
+    const startCameraBtn = document.getElementById('startCameraBtn');
+    const captureBtn = document.getElementById('captureBtn');
+    const convertBtn = document.getElementById('convertBtn');
+    const fileInput = document.getElementById('fileInput');
+    const video = document.getElementById('video');
+    const sourcePreview = document.getElementById('sourcePreview');
+    const captureCanvas = document.getElementById('captureCanvas');
+    const spriteCanvas = document.getElementById('spriteCanvas');
+    const paletteGrid = document.getElementById('paletteGrid');
+    const spriteSizeSelect = document.getElementById('spriteSize');
+    const scaleRange = document.getElementById('scaleRange');
+    const codeOutput = document.getElementById('codeOutput');
+    const downloadJsonBtn = document.getElementById('downloadJsonBtn');
+    const downloadHeaderBtn = document.getElementById('downloadHeaderBtn');
+    const statusText = document.getElementById('statusText');
+
+    const captureCtx = captureCanvas.getContext('2d', { willReadFrequently: true });
+    const spriteCtx = spriteCanvas.getContext('2d', { willReadFrequently: true });
+    spriteCtx.imageSmoothingEnabled = false;
+
+    const state = {
+      stream: null,
+      hasSource: false,
+      sourceDataURL: '',
+      latestJSON: '',
+      latestHeader: '',
+      latestPalette: [],
+      latestIndexed: [],
+      latestWidth: 0,
+      latestHeight: 0
+    };
+
+    const defaultPalette = [
+      [0,0,0],[34,34,34],[68,68,68],[102,102,102],
+      [153,153,153],[204,204,204],[255,255,255],[31,227,211],
+      [69,255,240],[0,132,140],[255,122,156],[255,196,114],
+      [121,255,176],[90,120,255],[197,120,255],[160,102,70]
+    ];
+
+    function setStatus(message){
+      statusText.textContent = message;
+    }
+
+    function buildHomeFace(){
+      const colors = [
+        '#0c1a1d','#173238','#24515b','#3e8d92','#45fff0','#7afff5',
+        '#d8fffb','#f0d3b0','#cf9f78','#8d6147','#2a1b16','#ffffff'
+      ];
+
+      const pattern = [
+        0,0,0,0,1,1,1,1,0,0,0,0,
+        0,0,1,1,7,7,7,7,1,1,0,0,
+        0,1,7,7,7,7,7,7,7,7,1,0,
+        1,7,7,7,8,8,8,8,7,7,7,1,
+        1,7,7,8,8,8,8,8,8,7,7,1,
+        1,7,8,8,9,8,8,9,8,8,7,1,
+        1,7,8,8,8,8,8,8,8,8,7,1,
+        1,7,8,10,8,8,8,8,10,8,7,1,
+        1,7,8,8,8,11,11,8,8,8,7,1,
+        0,1,7,8,8,8,8,8,8,7,1,0,
+        0,0,1,7,7,7,7,7,7,1,0,0,
+        0,0,0,1,1,1,1,1,1,0,0,0
+      ];
+
+      faceGrid.innerHTML = '';
+      pattern.forEach(i => {
+        const px = document.createElement('div');
+        px.className = 'px';
+        px.style.background = colors[i];
+        faceGrid.appendChild(px);
+      });
+    }
+
+    function launchApp(){
+      homeScreen.classList.add('fade-out');
+      setTimeout(() => {
+        homeScreen.classList.add('hidden');
+        appScreen.classList.add('active');
+      }, 500);
+    }
+
+    launchBtn.addEventListener('click', launchApp);
+    howBtn.addEventListener('click', () => {
+      alert('1. Start Camera or Upload Photo\\n2. Capture or select your image\\n3. Press Convert to 16-Bit Sprite\\n4. Export JSON or C Header');
+    });
+
+    async function startCamera(){
+      try{
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          setStatus('Camera is not supported on this browser.');
+          return;
+        }
+
+        if(state.stream){
+          state.stream.getTracks().forEach(track => track.stop());
+        }
+
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: 'user',
+            width: { ideal: 1280 },
+            height: { ideal: 1280 }
+          },
+          audio: false
+        });
+
+        state.stream = stream;
+        video.srcObject = stream;
+        video.style.display = 'block';
+        sourcePreview.style.display = 'none';
+        setStatus('Camera started. Frame your face and press Capture Face.');
+      }catch(err){
+        console.error(err);
+        setStatus('Camera access failed. Use Upload Photo or run from GitHub Pages / localhost.');
+      }
+    }
+
+    function drawImageCoverToCanvas(image, ctx, targetW, targetH){
+      const iw = image.videoWidth || image.naturalWidth || image.width;
+      const ih = image.videoHeight || image.naturalHeight || image.height;
+      if(!iw || !ih) return;
+
+      const scale = Math.max(targetW / iw, targetH / ih);
+      const dw = iw * scale;
+      const dh = ih * scale;
+      const dx = (targetW - dw) / 2;
+      const dy = (targetH - dh) / 2;
+
+      ctx.clearRect(0, 0, targetW, targetH);
+      ctx.drawImage(image, dx, dy, dw, dh);
+    }
+
+    function updateSourcePreviewFromCanvas(){
+      state.sourceDataURL = captureCanvas.toDataURL('image/png');
+      sourcePreview.src = state.sourceDataURL;
+      sourcePreview.style.display = 'block';
+      video.style.display = 'none';
+      state.hasSource = true;
+    }
+
+    function captureFace(){
+      if(video.readyState < 2){
+        setStatus('Camera is not ready yet. Start camera or upload a photo.');
+        return;
+      }
+
+      drawImageCoverToCanvas(video, captureCtx, 256, 256);
+      updateSourcePreviewFromCanvas();
+      setStatus('Face captured. Press Convert to 16-Bit Sprite.');
+    }
+
+    function loadUploadedImage(file){
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = new Image();
+        img.onload = () => {
+          drawImageCoverToCanvas(img, captureCtx, 256, 256);
+          updateSourcePreviewFromCanvas();
+          setStatus('Photo loaded. Press Convert to 16-Bit Sprite.');
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function quantizeChannel(value, levels = 16){
+      const step = 255 / (levels - 1);
+      return Math.round(value / step) * step;
+    }
+
+    function buildPaletteFromImageData(imageData){
+      const freq = new Map();
+      const data = imageData.data;
+
+      for(let i = 0; i < data.length; i += 4){
+        const a = data[i + 3];
+        if(a < 10) continue;
+
+        const r = quantizeChannel(data[i], 16);
+        const g = quantizeChannel(data[i + 1], 16);
+        const b = quantizeChannel(data[i + 2], 16);
+        const key = `${r},${g},${b}`;
+
+        freq.set(key, (freq.get(key) || 0) + 1);
+      }
+
+      let palette = [...freq.entries()]
+        .sort((a,b) => b[1] - a[1])
+        .slice(0,16)
+        .map(entry => entry[0].split(',').map(n => Number(n)));
+
+      const existing = new Set(palette.map(c => c.join(',')));
+      for(const color of defaultPalette){
+        if(palette.length >= 16) break;
+        const key = color.join(',');
+        if(!existing.has(key)){
+          palette.push(color);
+          existing.add(key);
+        }
+      }
+
+      while(palette.length < 16){
+        palette.push([0,0,0]);
+      }
+
+      return palette.slice(0,16);
+    }
+
+    function nearestPaletteIndex(r, g, b, palette){
+      let bestIndex = 0;
+      let bestDistance = Infinity;
+
+      for(let i = 0; i < palette.length; i++){
+        const pr = palette[i][0];
+        const pg = palette[i][1];
+        const pb = palette[i][2];
+        const dr = r - pr;
+        const dg = g - pg;
+        const db = b - pb;
+        const dist = dr*dr + dg*dg + db*db;
+
+        if(dist < bestDistance){
+          bestDistance = dist;
+          bestIndex = i;
+        }
+      }
+
+      return bestIndex;
+    }
+
+    function rgb565(r, g, b){
+      const value = ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
+      return '0x' + value.toString(16).toUpperCase().padStart(4, '0');
+    }
+
+    function renderSprite(indexed, palette, width, height){
+      const scale = Number(scaleRange.value);
+      const renderW = width * scale;
+      const renderH = height * scale;
+
+      spriteCanvas.width = Math.max(384, renderW + 32);
+      spriteCanvas.height = Math.max(384, renderH + 32);
+
+      spriteCtx.clearRect(0, 0, spriteCanvas.width, spriteCanvas.height);
+      spriteCtx.imageSmoothingEnabled = false;
+
+      const xOffset = Math.floor((spriteCanvas.width - renderW) / 2);
+      const yOffset = Math.floor((spriteCanvas.height - renderH) / 2);
+
+      for(let y = 0; y < height; y++){
+        for(let x = 0; x < width; x++){
+          const idx = indexed[y * width + x];
+          const color = palette[idx] || [0,0,0];
+          spriteCtx.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+          spriteCtx.fillRect(xOffset + x * scale, yOffset + y * scale, scale, scale);
+        }
+      }
+
+      spriteCtx.strokeStyle = 'rgba(31,227,211,.16)';
+      spriteCtx.lineWidth = 1;
+
+      for(let x = 0; x <= width; x++){
+        spriteCtx.beginPath();
+        spriteCtx.moveTo(xOffset + x * scale + 0.5, yOffset);
+        spriteCtx.lineTo(xOffset + x * scale + 0.5, yOffset + renderH);
+        spriteCtx.stroke();
+      }
+
+      for(let y = 0; y <= height; y++){
+        spriteCtx.beginPath();
+        spriteCtx.moveTo(xOffset, yOffset + y * scale + 0.5);
+        spriteCtx.lineTo(xOffset + renderW, yOffset + y * scale + 0.5);
+        spriteCtx.stroke();
+      }
+    }
+
+    function renderPalette(palette){
+      paletteGrid.innerHTML = '';
+      palette.forEach((color, index) => {
+        const swatch = document.createElement('div');
+        swatch.className = 'swatch';
+
+        const colorBox = document.createElement('div');
+        colorBox.className = 'swatch-color';
+        colorBox.style.background = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+
+        const label = document.createElement('div');
+        label.className = 'swatch-label';
+        label.textContent = `#${index}  ${rgb565(color[0], color[1], color[2])}`;
+
+        swatch.appendChild(colorBox);
+        swatch.appendChild(label);
+        paletteGrid.appendChild(swatch);
+      });
+    }
+
+    function buildExports(palette, indexed, width, height){
+      const palette565 = palette.map(([r,g,b]) => rgb565(r,g,b));
+      const spriteName = 'bitme_face_sprite';
+
+      const jsonObject = {
+        name: spriteName,
+        width,
+        height,
+        paletteRGB565: palette565,
+        paletteRGB: palette,
+        indexedPixels: indexed
+      };
+
+      const jsonString = JSON.stringify(jsonObject, null, 2);
+
+      const headerString =
+`#ifndef BITME_FACE_SPRITE_H
+#define BITME_FACE_SPRITE_H
+
+#define BITME_FACE_SPRITE_WIDTH ${width}
+#define BITME_FACE_SPRITE_HEIGHT ${height}
+#define BITME_FACE_SPRITE_PALETTE_SIZE 16
+
+static const unsigned short ${spriteName}_palette[16] = {
+  ${palette565.join(', ')}
+};
+
+static const unsigned char ${spriteName}_pixels[${indexed.length}] = {
+  ${indexed.join(', ')}
+};
+
+#endif
+`;
+
+      state.latestJSON = jsonString;
+      state.latestHeader = headerString;
+      codeOutput.value = headerString;
+    }
+
+    function convertToSprite(){
+      if(!state.hasSource){
+        if(video.readyState >= 2){
+          captureFace();
+        }else{
+          setStatus('No source image found. Start the camera or upload a photo.');
+          return;
+        }
+      }
+
+      const size = Number(spriteSizeSelect.value);
+
+      const tmpCanvas = document.createElement('canvas');
+      tmpCanvas.width = size;
+      tmpCanvas.height = size;
+      const tmpCtx = tmpCanvas.getContext('2d', { willReadFrequently: true });
+      tmpCtx.imageSmoothingEnabled = true;
+      tmpCtx.drawImage(captureCanvas, 0, 0, size, size);
+
+      const imgData = tmpCtx.getImageData(0, 0, size, size);
+      const palette = buildPaletteFromImageData(imgData);
+      const indexed = [];
+
+      for(let i = 0; i < imgData.data.length; i += 4){
+        const r = imgData.data[i];
+        const g = imgData.data[i + 1];
+        const b = imgData.data[i + 2];
+        const a = imgData.data[i + 3];
+
+        if(a < 10){
+          indexed.push(0);
+          continue;
+        }
+
+        const nearest = nearestPaletteIndex(r, g, b, palette);
+        indexed.push(nearest);
+      }
+
+      state.latestPalette = palette;
+      state.latestIndexed = indexed;
+      state.latestWidth = size;
+      state.latestHeight = size;
+
+      renderSprite(indexed, palette, size, size);
+      renderPalette(palette);
+      buildExports(palette, indexed, size, size);
+      setStatus('Conversion complete. Export JSON or C Header when ready.');
+    }
+
+    function downloadFile(filename, content, type){
+      const blob = new Blob([content], { type });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    startCameraBtn.addEventListener('click', startCamera);
+    captureBtn.addEventListener('click', captureFace);
+    convertBtn.addEventListener('click', convertToSprite);
+
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if(file) loadUploadedImage(file);
+    });
+
+    scaleRange.addEventListener('input', () => {
+      if(state.latestIndexed.length){
+        renderSprite(state.latestIndexed, state.latestPalette, state.latestWidth, state.latestHeight);
+      }
+    });
+
+    downloadJsonBtn.addEventListener('click', () => {
+      if(!state.latestJSON){
+        setStatus('Convert an image first before exporting JSON.');
+        return;
+      }
+      downloadFile('bitme-sprite.json', state.latestJSON, 'application/json');
+      setStatus('JSON export downloaded.');
+    });
+
+    downloadHeaderBtn.addEventListener('click', () => {
+      if(!state.latestHeader){
+        setStatus('Convert an image first before exporting C Header.');
+        return;
+      }
+      downloadFile('bitme-sprite.h', state.latestHeader, 'text/plain');
+      setStatus('C Header export downloaded.');
+    });
+
+    buildHomeFace();
+    setStatus('Ready. Launch camera or upload a photo.');
+  </script>
 </body>
 </html>
