@@ -337,14 +337,20 @@
         linear-gradient(90deg, rgba(255,255,255,.014) 1px, transparent 1px);
       background-size: 18px 18px;
     }
-    video, #sourcePreview {
+    video {
       width: 100%;
       height: 100%;
       object-fit: cover;
       display: block;
       background: #0a111a;
     }
-    #sourcePreview { display: none; }
+    #sourcePreview {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: none;
+      background: #0a111a;
+    }
     #spriteCanvas {
       width: min(100%, 420px);
       height: auto;
@@ -467,7 +473,7 @@
         <div class="card">
           <div class="card-head">
             <h2>Input + Conversion</h2>
-            <p>Capture a photo or upload one, choose Original photo dimensions or a pixel-detail preset, then convert it into an indexed asset.</p>
+            <p>Capture a photo or upload one. The app keeps the source image at its original dimensions, then converts it into an indexed asset.</p>
           </div>
           <div class="controls">
             <div class="row">
@@ -479,24 +485,13 @@
               </label>
             </div>
             <div class="row">
-              <label>Pixel Detail
-                <select id="spriteSize">
-                  <option value="original" selected>Original photo dimensions</option>
-                  <option value="16">16 × 16</option>
-                  <option value="24">24 × 24</option>
-                  <option value="32">32 × 32</option>
-                  <option value="48">48 × 48</option>
-                  <option value="64">64 × 64</option>
-                  <option value="96">96 × 96 — high detail</option>
-                  <option value="128">128 × 128 — extra detail</option>
-                  <option value="256">256 × 256 — ultra detail</option>
-                </select>
-              </label>
               <label>Palette Size
                 <select id="paletteSize">
                   <option value="8">8 colors</option>
                   <option value="16" selected>16 colors</option>
                   <option value="32">32 colors</option>
+                  <option value="64">64 colors — high color</option>
+                  <option value="128">128 colors — max detail</option>
                 </select>
               </label>
               <label>Preview Scale
@@ -524,7 +519,7 @@
         <div class="card">
           <div class="card-head">
             <h2>Generated Asset</h2>
-            <p>The preview, palette, and code below are generated from the selected image so you can use them in sites, pages, and games.</p>
+            <p>The preview and palette are generated from the selected image. Code exports are created safely when requested so large original-size photos do not crash the browser.</p>
           </div>
           <div class="stage">
             <div class="box">
@@ -553,11 +548,11 @@
         <div class="guide-grid">
           <div class="guide-step">
             <strong>1. Capture or Upload</strong>
-            <p>Use the camera for a fresh photo or upload an existing image. Uploaded photos keep their original width and height before conversion.</p>
+            <p>Use the camera for a fresh photo or upload an existing image. Uploaded photos keep their original width and height by default.</p>
           </div>
           <div class="guide-step">
             <strong>2. Convert Accurately</strong>
-            <p>Choose Original photo dimensions or a pixel-detail preset, then choose a palette limit. The app samples the real image, builds a color palette, and maps each pixel to the nearest indexed color.</p>
+            <p>Choose a palette limit. The app samples the real image at its original size, builds a color palette, and maps each pixel to the nearest indexed color.</p>
           </div>
           <div class="guide-step">
             <strong>3. Export for Use</strong>
@@ -613,7 +608,6 @@
     const startCameraBtn = document.getElementById('startCameraBtn');
     const captureBtn = document.getElementById('captureBtn');
     const convertBtn = document.getElementById('convertBtn');
-    const spriteSize = document.getElementById('spriteSize');
     const paletteSize = document.getElementById('paletteSize');
     const scaleRange = document.getElementById('scaleRange');
     const paletteGrid = document.getElementById('paletteGrid');
@@ -748,7 +742,7 @@
           sourcePreview.style.display = 'block';
           video.style.display = 'none';
           state.sourceReady = true;
-          setStatus(`Photo uploaded at original size: ${captureCanvas.width} × ${captureCanvas.height}. Original dimensions will be preserved unless you choose a smaller pixel-detail preset.`);
+          setStatus(`Photo uploaded at original size: ${captureCanvas.width} × ${captureCanvas.height}. Original dimensions will be preserved automatically.`);
         };
         img.src = event.target.result;
       };
@@ -852,12 +846,38 @@
       });
     }
 
+    const MAX_JSON_EXPORT_PIXELS = 1000000;
+    const MAX_VECTOR_EXPORT_PIXELS = 262144;
+    const MAX_HEADER_EXPORT_PIXELS = 1000000;
+
+    function buildJson(indexed, palette, width, height, sourceWidth, sourceHeight) {
+      const jsonExport = {
+        name: 'bitme_asset',
+        width,
+        height,
+        sourceWidth,
+        sourceHeight,
+        outputMode: 'original_dimensions',
+        paletteRGB565: palette.map(([r,g,b]) => rgb565(r,g,b)),
+        paletteRGB: palette,
+        indexedPixels: Array.from(indexed)
+      };
+      return JSON.stringify(jsonExport, null, 2);
+    }
+
     function buildSvg(indexed, palette, width, height) {
       const rects = [];
       for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-          const [r,g,b] = palette[indexed[y * width + x]];
-          rects.push(`<rect x="${x}" y="${y}" width="1" height="1" fill="rgb(${r},${g},${b})" />`);
+        let runStart = 0;
+        let runIndex = indexed[y * width];
+        for (let x = 1; x <= width; x++) {
+          const nextIndex = x < width ? indexed[y * width + x] : -1;
+          if (nextIndex !== runIndex) {
+            const [r,g,b] = palette[runIndex];
+            rects.push(`<rect x="${runStart}" y="${y}" width="${x - runStart}" height="1" fill="rgb(${r},${g},${b})" />`);
+            runStart = x;
+            runIndex = nextIndex;
+          }
         }
       }
       return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" shape-rendering="crispEdges">${rects.join('')}</svg>`;
@@ -876,24 +896,59 @@
 
     function buildHeader(indexed, palette, width, height) {
       const palette565 = palette.map(([r,g,b]) => rgb565(r,g,b));
-      return `#ifndef BITME_ASSET_H\n#define BITME_ASSET_H\n\n#define BITME_ASSET_WIDTH ${width}\n#define BITME_ASSET_HEIGHT ${height}\n#define BITME_ASSET_PALETTE_SIZE ${palette.length}\n\nstatic const unsigned short bitme_asset_palette[${palette.length}] = {\n  ${palette565.join(', ')}\n};\n\nstatic const unsigned char bitme_asset_pixels[${indexed.length}] = {\n  ${indexed.join(', ')}\n};\n\n#endif`;
+      return `#ifndef BITME_ASSET_H\n#define BITME_ASSET_H\n\n#define BITME_ASSET_WIDTH ${width}\n#define BITME_ASSET_HEIGHT ${height}\n#define BITME_ASSET_PALETTE_SIZE ${palette.length}\n\nstatic const unsigned short bitme_asset_palette[${palette.length}] = {\n  ${palette565.join(', ')}\n};\n\nstatic const unsigned char bitme_asset_pixels[${indexed.length}] = {\n  ${Array.from(indexed).join(', ')}\n};\n\n#endif`;
     }
 
     function getTargetDimensions() {
-      const selected = spriteSize.value;
-      if (selected === 'original') {
-        return {
-          width: captureCanvas.width,
-          height: captureCanvas.height,
-          label: 'original dimensions'
-        };
-      }
-      const size = Number(selected);
       return {
-        width: size,
-        height: size,
-        label: `${size} × ${size}`
+        width: captureCanvas.width,
+        height: captureCanvas.height,
+        label: 'original dimensions'
       };
+    }
+
+    function exportTooLarge(kind, pixelCount) {
+      if (kind === 'json' || kind === 'header') return pixelCount > MAX_JSON_EXPORT_PIXELS;
+      return pixelCount > MAX_VECTOR_EXPORT_PIXELS;
+    }
+
+    function getExportText(kind) {
+      if (!state.latest) return null;
+      const { indexed, palette, width, height, sourceWidth, sourceHeight, pixelCount } = state.latest;
+
+      if (kind === 'json') {
+        if (pixelCount > MAX_JSON_EXPORT_PIXELS) {
+          setStatus(`This original-size image is ${width} × ${height} (${pixelCount.toLocaleString()} pixels). PNG export is ready, but JSON would be extremely large. Use a smaller photo if you need code export.`);
+          return null;
+        }
+        return buildJson(indexed, palette, width, height, sourceWidth, sourceHeight);
+      }
+
+      if (kind === 'svg') {
+        if (pixelCount > MAX_VECTOR_EXPORT_PIXELS) {
+          setStatus(`SVG export is disabled for ${pixelCount.toLocaleString()} pixels to prevent a browser crash. PNG export is ready.`);
+          return null;
+        }
+        return buildSvg(indexed, palette, width, height);
+      }
+
+      if (kind === 'css') {
+        if (pixelCount > MAX_VECTOR_EXPORT_PIXELS) {
+          setStatus(`CSS box-shadow export is disabled for ${pixelCount.toLocaleString()} pixels to prevent a browser crash. PNG export is ready.`);
+          return null;
+        }
+        return buildCss(indexed, palette, width, height);
+      }
+
+      if (kind === 'header') {
+        if (pixelCount > MAX_HEADER_EXPORT_PIXELS) {
+          setStatus(`C header export is disabled for ${pixelCount.toLocaleString()} pixels to prevent a browser crash. PNG export is ready.`);
+          return null;
+        }
+        return buildHeader(indexed, palette, width, height);
+      }
+
+      return null;
     }
 
     function convertImage() {
@@ -905,55 +960,49 @@
       const width = target.width;
       const height = target.height;
       const colors = Number(paletteSize.value);
+      const pixelCount = width * height;
 
-      const tmpCanvas = document.createElement('canvas');
-      tmpCanvas.width = width;
-      tmpCanvas.height = height;
-      const tmpCtx = tmpCanvas.getContext('2d', { willReadFrequently: true });
-      tmpCtx.imageSmoothingEnabled = spriteSize.value !== 'original';
-      tmpCtx.clearRect(0, 0, width, height);
-      tmpCtx.drawImage(captureCanvas, 0, 0, captureCanvas.width, captureCanvas.height, 0, 0, width, height);
-
-      const imgData = tmpCtx.getImageData(0, 0, width, height);
+      const imgData = captureCtx.getImageData(0, 0, width, height);
       const palette = buildPalette(imgData, colors);
-      const indexed = [];
+      const indexed = new Uint8Array(pixelCount);
+      const lookupCache = new Map();
 
-      for (let i = 0; i < imgData.data.length; i += 4) {
-        const r = imgData.data[i];
-        const g = imgData.data[i + 1];
-        const b = imgData.data[i + 2];
-        indexed.push(nearestPaletteIndex(r, g, b, palette));
+      for (let i = 0, p = 0; i < imgData.data.length; i += 4, p++) {
+        const r = quantizeChannel(imgData.data[i], 16);
+        const g = quantizeChannel(imgData.data[i + 1], 16);
+        const b = quantizeChannel(imgData.data[i + 2], 16);
+        const key = `${r},${g},${b}`;
+        let paletteIndex = lookupCache.get(key);
+        if (paletteIndex === undefined) {
+          paletteIndex = nearestPaletteIndex(r, g, b, palette);
+          lookupCache.set(key, paletteIndex);
+        }
+        indexed[p] = paletteIndex;
       }
 
       const pixelCanvas = buildPixelCanvas(indexed, palette, width, height);
-      const jsonExport = {
-        name: 'bitme_asset',
-        width,
-        height,
-        sourceWidth: captureCanvas.width,
-        sourceHeight: captureCanvas.height,
-        outputMode: spriteSize.value === 'original' ? 'original_dimensions' : 'resampled_pixel_detail',
-        paletteRGB565: palette.map(([r,g,b]) => rgb565(r,g,b)),
-        paletteRGB: palette,
-        indexedPixels: indexed
-      };
 
       state.latest = {
         width,
         height,
+        sourceWidth: captureCanvas.width,
+        sourceHeight: captureCanvas.height,
         palette,
         indexed,
-        pngDataUrl: pixelCanvas.toDataURL('image/png'),
-        jsonText: JSON.stringify(jsonExport, null, 2),
-        svgText: buildSvg(indexed, palette, width, height),
-        cssText: buildCss(indexed, palette, width, height),
-        headerText: buildHeader(indexed, palette, width, height)
+        pixelCanvas,
+        pixelCount
       };
 
       renderPreview(indexed, palette, width, height);
       renderPalette(palette);
-      codeOutput.value = state.latest.jsonText;
-      setStatus(`Conversion complete at ${width} × ${height} using ${colors} colors. Your asset is ready to export.`);
+
+      if (pixelCount <= MAX_JSON_EXPORT_PIXELS) {
+        codeOutput.value = buildJson(indexed, palette, width, height, captureCanvas.width, captureCanvas.height);
+      } else {
+        codeOutput.value = `Original-size conversion complete.\n\nDimensions: ${width} × ${height}\nPixels: ${pixelCount.toLocaleString()}\nPalette: ${colors} colors\n\nPNG export is ready. Code exports are intentionally not auto-rendered for this large image because forcing millions of pixels into this text box can crash mobile browsers.`;
+      }
+
+      setStatus(`Conversion complete at original size: ${width} × ${height}, using ${colors} colors.`);
     }
 
     function downloadBlob(filename, content, type) {
@@ -977,6 +1026,20 @@
       a.remove();
     }
 
+    function downloadCanvasPng(filename, canvas) {
+      if (!canvas) return setStatus('Convert an image first.');
+      if (canvas.toBlob) {
+        canvas.toBlob(blob => {
+          if (!blob) return setStatus('PNG export failed. Try a smaller image.');
+          const url = URL.createObjectURL(blob);
+          downloadDataUrl(filename, url);
+          setTimeout(() => URL.revokeObjectURL(url), 500);
+        }, 'image/png');
+      } else {
+        downloadDataUrl(filename, canvas.toDataURL('image/png'));
+      }
+    }
+
     startCameraBtn.addEventListener('click', startCamera);
     captureBtn.addEventListener('click', capturePhoto);
     convertBtn.addEventListener('click', convertImage);
@@ -990,27 +1053,35 @@
 
     downloadPngBtn.addEventListener('click', () => {
       if (!state.latest) return setStatus('Convert an image first.');
-      downloadDataUrl('bitme-asset.png', state.latest.pngDataUrl);
+      downloadCanvasPng('bitme-asset.png', state.latest.pixelCanvas);
     });
     downloadJsonBtn.addEventListener('click', () => {
       if (!state.latest) return setStatus('Convert an image first.');
-      codeOutput.value = state.latest.jsonText;
-      downloadBlob('bitme-asset.json', state.latest.jsonText, 'application/json');
+      const text = getExportText('json');
+      if (!text) return;
+      codeOutput.value = text;
+      downloadBlob('bitme-asset.json', text, 'application/json');
     });
     downloadSvgBtn.addEventListener('click', () => {
       if (!state.latest) return setStatus('Convert an image first.');
-      codeOutput.value = state.latest.svgText;
-      downloadBlob('bitme-asset.svg', state.latest.svgText, 'image/svg+xml');
+      const text = getExportText('svg');
+      if (!text) return;
+      codeOutput.value = text;
+      downloadBlob('bitme-asset.svg', text, 'image/svg+xml');
     });
     downloadCssBtn.addEventListener('click', () => {
       if (!state.latest) return setStatus('Convert an image first.');
-      codeOutput.value = state.latest.cssText;
-      downloadBlob('bitme-asset.css', state.latest.cssText, 'text/css');
+      const text = getExportText('css');
+      if (!text) return;
+      codeOutput.value = text;
+      downloadBlob('bitme-asset.css', text, 'text/css');
     });
     downloadHeaderBtn.addEventListener('click', () => {
       if (!state.latest) return setStatus('Convert an image first.');
-      codeOutput.value = state.latest.headerText;
-      downloadBlob('bitme-asset.h', state.latest.headerText, 'text/plain');
+      const text = getExportText('header');
+      if (!text) return;
+      codeOutput.value = text;
+      downloadBlob('bitme-asset.h', text, 'text/plain');
     });
 
     renderHomepageAsset();
