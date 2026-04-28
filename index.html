@@ -1,294 +1,485 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BitMe — Photo to Pixel Asset Studio</title>
-  <meta name="description" content="Take a photo or upload one, convert it into accurate pixel-art asset code, and export usable design elements for websites, apps, and game projects." />
-  <meta name="robots" content="index, follow, max-image-preview:large" />
-  <meta property="og:title" content="BitMe — Photo to Pixel Asset Studio" />
-  <meta property="og:description" content="Capture a face or upload an image, convert it into pixel-art code, and export usable assets for websites, apps, and games." />
-  <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="BitMe" />
-  <meta name="twitter:card" content="summary_large_image" />
+  <title>BitMe — Photo to Pixel Code</title>
+  <meta name="description" content="Take a photo or upload one, convert it into accurate pixel art, and export functional code for websites, apps, and game assets." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    :root{
-      --bg:#071216;
-      --bg2:#0c1a1f;
-      --panel:#102229;
-      --panel2:#132b33;
-      --line:#2ce7d3;
-      --line-soft:rgba(44,231,211,.26);
-      --line-faint:rgba(44,231,211,.12);
-      --text:#eafffc;
-      --muted:#92beb8;
-      --accent:#7effee;
-      --accent2:#2ce7d3;
-      --warn:#ffd979;
-      --ok:#95ffb3;
-      --shadow:0 0 0 1px rgba(44,231,211,.14), 0 0 28px rgba(44,231,211,.08);
-      --radius:22px;
+    :root {
+      --bg: #070b12;
+      --bg2: #0d1522;
+      --panel: #101b2b;
+      --panel2: #162437;
+      --line: rgba(77, 224, 195, 0.28);
+      --line-strong: rgba(77, 224, 195, 0.55);
+      --text: #eef6ff;
+      --muted: #9fb4c9;
+      --accent: #4de0c3;
+      --accent-2: #7df6df;
+      --shadow: 0 18px 55px rgba(0,0,0,.35);
     }
-    *{box-sizing:border-box;margin:0;padding:0}
-    html{scroll-behavior:smooth}
-    body{
-      font-family:Inter,system-ui,sans-serif;
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
       background:
-        radial-gradient(circle at top, rgba(44,231,211,.08), transparent 32%),
-        linear-gradient(180deg,#040b0d,#071216 28%,#081519 100%);
-      color:var(--text);
-      min-height:100vh;
-      overflow-x:hidden;
+        radial-gradient(circle at top, rgba(77,224,195,.08), transparent 35%),
+        linear-gradient(180deg, #05080d 0%, #070b12 40%, #0a1019 100%);
+      color: var(--text);
+      font-family: Inter, system-ui, sans-serif;
     }
-    body::before{
-      content:"";
-      position:fixed;inset:0;pointer-events:none;opacity:.18;
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
       background:
-        linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px),
+        linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
-      background-size:24px 24px;
+      background-size: 26px 26px;
+      opacity: .18;
     }
-    .wrap{width:min(1240px,calc(100% - 32px));margin:0 auto}
-    .hero{
-      padding:56px 0 28px;
-      position:relative;
+    .hidden { display: none !important; }
+    .shell {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
     }
-    .hero-card{
-      border:1px solid var(--line-soft);
-      background:linear-gradient(180deg, rgba(12,26,31,.92), rgba(10,20,24,.98));
-      border-radius:32px;
-      box-shadow:var(--shadow);
-      overflow:hidden;
-      position:relative;
+    .home {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px 0;
     }
-    .hero-card::before{
-      content:"";
-      position:absolute;inset:0;
+    .home-card {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background: linear-gradient(180deg, rgba(12,20,31,.96), rgba(8,13,20,.98));
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+    .hero {
+      padding: 34px 22px 26px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 18px;
+    }
+    .eyebrow {
+      font-size: 11px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--accent-2);
+      background: rgba(77,224,195,.08);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 700;
+    }
+    .sprite-stack {
+      position: relative;
+      display: grid;
+      place-items: center;
+      margin-top: 4px;
+      margin-bottom: 6px;
+    }
+    .sprite-glow {
+      position: absolute;
+      width: 320px;
+      height: 320px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(77,224,195,.32) 0%, rgba(77,224,195,.15) 35%, rgba(77,224,195,.05) 58%, transparent 72%);
+      filter: blur(22px);
+    }
+    .sprite-frame {
+      position: relative;
+      width: 272px;
+      height: 272px;
+      padding: 8px;
+      border-radius: 22px;
+      border: 1px solid var(--line-strong);
+      background: linear-gradient(180deg, rgba(17,27,43,.9), rgba(8,13,20,.96));
+      box-shadow: 0 0 0 1px rgba(255,255,255,.03), 0 0 40px rgba(77,224,195,.14);
+    }
+    #heroSprite {
+      width: 256px;
+      height: 256px;
+      display: block;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      background: transparent;
+      margin: 0 auto;
+    }
+    .title {
+      margin: 0;
+      font-family: "Press Start 2P", monospace;
+      font-size: clamp(24px, 4vw, 42px);
+      line-height: 1.35;
+      color: #f7fcff;
+      text-shadow: 0 3px 0 rgba(0,0,0,.45), 0 0 22px rgba(77,224,195,.18);
+    }
+    .title span {
+      color: var(--accent-2);
+    }
+    .sub {
+      max-width: 780px;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.8;
+      margin: 0;
+    }
+    .credit {
+      margin: 0;
+      color: #d3fff7;
+      font-size: 13px;
+      letter-spacing: .04em;
+      font-weight: 700;
+    }
+    .home-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 8px;
+    }
+    .btn {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #162437, #111b2b);
+      color: var(--text);
+      padding: 14px 18px;
+      border-radius: 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .12s ease, border-color .18s ease, box-shadow .18s ease;
+      box-shadow: 0 8px 22px rgba(0,0,0,.18);
+    }
+    .btn:hover {
+      transform: translateY(-1px);
+      border-color: var(--line-strong);
+      box-shadow: 0 10px 24px rgba(0,0,0,.22), 0 0 24px rgba(77,224,195,.08);
+    }
+    .btn-primary {
+      background: linear-gradient(180deg, rgba(77,224,195,.26), rgba(16,27,43,.98));
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      padding: 0 22px 22px;
+    }
+    .info-card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(17,27,43,.86), rgba(10,16,25,.95));
+      padding: 18px;
+    }
+    .info-card h3 {
+      margin: 0 0 10px;
+      font-family: "Press Start 2P", monospace;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .info-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+    .app {
+      display: none;
+      padding: 20px 0 32px;
+    }
+    .app.active { display: block; }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      border: 1px solid var(--line);
+      background: rgba(13,21,34,.9);
+      border-radius: 20px;
+      padding: 18px 20px;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 12px;
+      z-index: 4;
+      backdrop-filter: blur(10px);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .brand-badge {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line-strong);
+      color: var(--accent-2);
+      font-family: "Press Start 2P", monospace;
+      font-size: 15px;
+      background: linear-gradient(180deg, rgba(77,224,195,.15), rgba(17,27,43,.98));
+    }
+    .brand h1 {
+      margin: 0;
+      font-family: "Press Start 2P", monospace;
+      font-size: clamp(16px, 2vw, 22px);
+      line-height: 1.35;
+    }
+    .brand p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .status {
+      color: var(--accent-2);
+      font-size: 12px;
+      font-weight: 700;
+      text-align: right;
+    }
+    .studio {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 18px;
+    }
+    .card {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(16,27,43,.94), rgba(9,14,22,.98));
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .card-head {
+      padding: 18px 18px 0;
+    }
+    .card-head h2 {
+      margin: 0;
+      font-family: "Press Start 2P", monospace;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    .card-head p {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+      margin: 10px 0 0;
+    }
+    .controls {
+      padding: 18px;
+      display: grid;
+      gap: 12px;
+    }
+    .row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .row label {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      color: #d7efff;
+      font-size: 12px;
+      flex: 1;
+      min-width: 170px;
+    }
+    input, select, textarea {
+      width: 100%;
+      background: #0f1826;
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      font: inherit;
+      outline: none;
+    }
+    input[type="range"] { padding: 8px; }
+    textarea {
+      min-height: 280px;
+      resize: vertical;
+      line-height: 1.6;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+    }
+    .stage {
+      padding: 18px;
+    }
+    .box {
+      min-height: 390px;
+      border: 1px solid rgba(77,224,195,.16);
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(17,27,43,.86), rgba(8,13,20,.96));
+      display: grid;
+      place-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .box::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
       background:
-        radial-gradient(circle at 18% 18%, rgba(126,255,238,.09), transparent 20%),
-        radial-gradient(circle at 82% 22%, rgba(44,231,211,.08), transparent 18%);
-      pointer-events:none;
-    }
-    .topbar{
-      display:flex;justify-content:space-between;align-items:center;gap:16px;
-      padding:20px 24px;border-bottom:1px solid var(--line-faint);position:relative;z-index:1
-    }
-    .brand{display:flex;align-items:center;gap:14px}
-    .logo{
-      width:52px;height:52px;border-radius:16px;display:grid;place-items:center;
-      background:linear-gradient(180deg, rgba(126,255,238,.18), rgba(19,34,40,.95));
-      border:1px solid var(--line-soft);box-shadow:0 0 22px rgba(44,231,211,.1);
-      font-family:"Press Start 2P", monospace;font-size:12px;color:var(--accent)
-    }
-    .brand h1{
-      font-family:"Press Start 2P", monospace;
-      font-size:clamp(18px,2.2vw,24px);line-height:1.3
-    }
-    .brand p{color:var(--muted);font-size:13px;margin-top:6px}
-    .tag{
-      display:inline-flex;align-items:center;gap:10px;padding:10px 14px;border-radius:999px;
-      background:rgba(44,231,211,.08);border:1px solid var(--line-soft);font-size:11px;
-      text-transform:uppercase;letter-spacing:.12em;font-weight:800;color:var(--accent)
-    }
-    .tag::before{
-      content:"";width:8px;height:8px;border-radius:50%;background:var(--accent);
-      box-shadow:0 0 12px rgba(126,255,238,.9)
-    }
-    .hero-main{
-      display:grid;grid-template-columns:1.15fr .85fr;gap:24px;align-items:center;
-      padding:34px 24px 28px;position:relative;z-index:1
-    }
-    .hero-copy h2{
-      font-family:"Press Start 2P", monospace;
-      font-size:clamp(28px,4.4vw,54px);line-height:1.22;margin:18px 0 20px;
-      text-shadow:0 0 16px rgba(126,255,238,.14)
-    }
-    .hero-copy h2 span{color:var(--accent)}
-    .hero-copy p{
-      color:var(--muted);font-size:17px;line-height:1.8;max-width:760px
-    }
-    .hero-actions{display:flex;flex-wrap:wrap;gap:14px;margin-top:24px}
-    .btn{
-      appearance:none;border:none;cursor:pointer;font:inherit;font-weight:800;
-      border-radius:16px;padding:14px 18px;color:var(--text);
-      background:linear-gradient(180deg,#163138,#102329);
-      border:1px solid var(--line-soft);box-shadow:var(--shadow);
-      transition:transform .14s ease,border-color .18s ease, box-shadow .18s ease;
-      text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:10px
-    }
-    .btn:hover{transform:translateY(-1px);border-color:rgba(126,255,238,.5);box-shadow:0 0 0 1px rgba(126,255,238,.18),0 0 28px rgba(44,231,211,.12)}
-    .btn.primary{background:linear-gradient(180deg, rgba(126,255,238,.24), rgba(16,35,41,.96))}
-    .hero-panel,.panel,.info-card,.guide-card{
-      border:1px solid var(--line-soft);border-radius:24px;background:linear-gradient(180deg, rgba(16,34,41,.92), rgba(12,24,29,.98));box-shadow:var(--shadow)
-    }
-    .hero-panel{padding:18px}
-    .mini-preview{
-      border:1px solid var(--line-faint);border-radius:18px;padding:18px;background:#0b1518
-    }
-    .mini-preview canvas{display:block;width:min(100%,320px);aspect-ratio:1/1;margin:0 auto;image-rendering:pixelated}
-    .mini-preview p{font-size:12px;color:var(--muted);line-height:1.7;text-align:center;margin-top:14px}
-    section{padding:16px 0 0}
-    .section-title{
-      font-family:"Press Start 2P", monospace;font-size:16px;line-height:1.6;margin-bottom:10px
-    }
-    .section-copy{color:var(--muted);font-size:14px;line-height:1.8;margin-bottom:16px}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-    .panel{padding:20px}
-    .controls{display:grid;gap:14px}
-    .row{display:flex;flex-wrap:wrap;gap:10px}
-    .field{display:flex;flex-direction:column;gap:8px;flex:1;min-width:170px}
-    .field label,.tiny-label{font-size:12px;color:#c7fffa;font-weight:700}
-    select,input[type="range"],textarea{
-      width:100%;border-radius:14px;border:1px solid rgba(44,231,211,.22);outline:none;
-      background:#0a1518;color:var(--text);padding:12px;font:inherit
-    }
-    textarea{min-height:260px;resize:vertical;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;line-height:1.65}
-    .stage{
-      border:1px solid var(--line-faint);border-radius:20px;min-height:360px;
-      background:linear-gradient(180deg, #0d181c, #091115);position:relative;overflow:hidden;
-      display:grid;place-items:center
-    }
-    .stage::before{
-      content:"";position:absolute;inset:0;pointer-events:none;
-      background:
-        linear-gradient(rgba(255,255,255,.014) 1px, transparent 1px),
+        linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255,255,255,.014) 1px, transparent 1px);
-      background-size:18px 18px;
+      background-size: 18px 18px;
     }
-    video,img.source-preview{width:100%;height:100%;object-fit:cover;display:block;background:#081013}
-    img.source-preview{display:none}
-    #spriteCanvas{
-      display:block;width:min(100%,430px);height:auto;image-rendering:pixelated;image-rendering:crisp-edges;
-      background:#081013;border:1px solid var(--line-faint);border-radius:14px
+    video, #sourcePreview {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      background: #0a111a;
     }
-    .palette{
-      display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:10px;margin-top:14px
+    #sourcePreview { display: none; }
+    #spriteCanvas {
+      width: min(100%, 420px);
+      height: auto;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      border: 1px solid rgba(77,224,195,.24);
+      border-radius: 14px;
+      background: #0b1119;
     }
-    .swatch{border:1px solid rgba(44,231,211,.16);border-radius:14px;overflow:hidden;background:#0a1518}
-    .swatch-color{height:34px}
-    .swatch-label{padding:8px;font-size:11px;color:#c8fbf5;text-align:center}
-    .exports{display:grid;gap:18px}
-    .guide{
-      display:grid;grid-template-columns:repeat(4,1fr);gap:14px
+    .palette {
+      padding: 0 18px 18px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
     }
-    .guide-card,.info-card{padding:16px}
-    .guide-card h3,.info-card h3{
-      font-family:"Press Start 2P", monospace;font-size:11px;line-height:1.6;margin-bottom:10px
+    .swatch {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      background: #0e1723;
     }
-    .guide-card p,.info-card p{font-size:13px;color:var(--muted);line-height:1.8}
-    .notice{
-      padding:14px 16px;border-radius:16px;border:1px solid rgba(255,217,121,.28);
-      background:rgba(255,217,121,.07);color:#ffe7ab;font-size:13px;line-height:1.8
+    .swatch-color { height: 34px; }
+    .swatch-label {
+      padding: 8px;
+      text-align: center;
+      color: #d8ebfb;
+      font-size: 11px;
     }
-    .status{
-      display:flex;align-items:center;gap:10px;color:#c7fffa;font-size:13px
+    .guide {
+      margin-top: 18px;
+      padding: 18px;
     }
-    .status::before{
-      content:"";width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 10px rgba(149,255,179,.9)
+    .guide-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
     }
-    .footer{padding:20px 0 34px;text-align:center;color:#7db0aa;font-size:12px}
-    @media (max-width: 1020px){
-      .hero-main,.grid,.guide{grid-template-columns:1fr}
+    .guide-step {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+      background: linear-gradient(180deg, rgba(17,27,43,.84), rgba(10,16,25,.95));
     }
-    @media (max-width: 720px){
-      .palette{grid-template-columns:repeat(4,minmax(0,1fr))}
-      .topbar{flex-direction:column;align-items:flex-start}
-      .hero-copy p{font-size:15px}
-      .wrap{width:min(1240px,calc(100% - 16px))}
-      .hero{padding-top:18px}
+    .guide-step strong {
+      display: block;
+      margin-bottom: 10px;
+      color: var(--accent-2);
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .guide-step p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+    @media (max-width: 980px) {
+      .grid, .guide-grid, .studio { grid-template-columns: 1fr; }
+      .topbar { flex-direction: column; align-items: flex-start; }
+      .status { text-align: left; }
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header class="hero">
-      <div class="hero-card">
-        <div class="topbar">
-          <div class="brand">
-            <div class="logo">BM</div>
-            <div>
-              <h1>BitMe</h1>
-              <p>Designed by Mario Garcia</p>
+  <section id="homeScreen" class="home">
+    <div class="shell">
+      <div class="home-card">
+        <div class="hero">
+          <div class="eyebrow">Photo to Pixel Code Studio</div>
+          <div class="sprite-stack">
+            <div class="sprite-glow"></div>
+            <div class="sprite-frame">
+              <canvas id="heroSprite" width="64" height="64" aria-label="BitMe homepage sprite"></canvas>
             </div>
           </div>
-          <div class="tag">Photo to functional pixel code</div>
+          <h1 class="title"><span>BIT</span>ME</h1>
+          <p class="sub">
+            Take a real photo or upload one, convert it into accurate pixel art, and export functional asset code
+            you can place into websites, GitHub projects, apps, and retro-style games.
+          </p>
+          <p class="credit">Designed by Mario Garcia</p>
+          <div class="home-actions">
+            <button id="launchBtn" class="btn btn-primary">Launch Studio</button>
+            <button id="guideBtn" class="btn">View Guide</button>
+          </div>
         </div>
-
-        <div class="hero-main">
-          <div class="hero-copy">
-            <h2>Turn a <span>real photo</span> into usable pixel-art code.</h2>
-            <p>
-              BitMe lets you take a photo with your camera or upload one from your device, convert it into a clean pixel-art asset, and export accurate code formats that can be used in websites, apps, GitHub pages, and retro-style game projects.
-            </p>
-            <div class="hero-actions">
-              <a href="#studio" class="btn primary">Open Studio</a>
-              <a href="#guide" class="btn">Read Guide</a>
-            </div>
+        <div class="grid">
+          <div class="info-card">
+            <h3>Real Input</h3>
+            <p>Use your camera or upload an existing image. The tool processes actual image data, not a fake preview.</p>
           </div>
-
-          <div class="hero-panel">
-            <div class="mini-preview">
-              <canvas id="heroCanvas" width="128" height="128" aria-label="pixel preview"></canvas>
-              <p>
-                Real capture • Real upload • Real export<br />
-                PNG sprite, JSON data, SVG pixel art, CSS box-shadow art, and C header output.
-              </p>
-            </div>
+          <div class="info-card">
+            <h3>Accurate Output</h3>
+            <p>Build a reduced palette, map every pixel to indexed colors, and export usable design or game asset code.</p>
+          </div>
+          <div class="info-card">
+            <h3>GitHub Ready</h3>
+            <p>Export JSON, CSS, SVG, PNG, and C-style sprite data that can be committed directly into web and app projects.</p>
           </div>
         </div>
       </div>
-    </header>
+    </div>
+  </section>
 
-    <section id="guide">
-      <div class="panel">
-        <div class="section-title">Quick Guide</div>
-        <div class="section-copy">
-          This app is designed to produce practical pixel assets, not just a filter effect.
-        </div>
-        <div class="guide">
-          <div class="guide-card">
-            <h3>1. Add Image</h3>
-            <p>Start the camera and capture a photo, or upload one directly from your device.</p>
-          </div>
-          <div class="guide-card">
-            <h3>2. Convert</h3>
-            <p>Choose a sprite size and palette depth, then convert the image into indexed pixel data.</p>
-          </div>
-          <div class="guide-card">
-            <h3>3. Export</h3>
-            <p>Download PNG, JSON, SVG, CSS, or C header output depending on where you want to use it.</p>
-          </div>
-          <div class="guide-card">
-            <h3>4. Use It</h3>
-            <p>Place the exported asset into websites, GitHub Pages, design systems, or game code pipelines.</p>
+  <section id="appScreen" class="app">
+    <div class="shell">
+      <div class="topbar">
+        <div class="brand">
+          <div class="brand-badge">BM</div>
+          <div>
+            <h1>BitMe Studio</h1>
+            <p>Convert photos into workable pixel assets and export functional code.</p>
           </div>
         </div>
+        <div class="status" id="statusText">Ready. Start the camera or upload a photo.</div>
       </div>
-    </section>
 
-    <section id="studio">
-      <div class="grid">
-        <div class="panel">
-          <div class="section-title">Source Input</div>
-          <div class="section-copy">
-            Use your webcam or upload a file. The app will crop and scale the image into a square source before conversion.
+      <div class="studio">
+        <div class="card">
+          <div class="card-head">
+            <h2>Input + Conversion</h2>
+            <p>Capture a photo or upload one, choose your sprite settings, then convert it into an indexed asset.</p>
           </div>
-
           <div class="controls">
             <div class="row">
               <button id="startCameraBtn" class="btn">Start Camera</button>
               <button id="captureBtn" class="btn">Capture Photo</button>
-              <label class="btn" for="fileInput">Upload Photo</label>
-              <input id="fileInput" type="file" accept="image/*" hidden />
+              <label class="btn" style="display:inline-flex; align-items:center; justify-content:center;">
+                Upload Photo
+                <input id="fileInput" type="file" accept="image/*" hidden>
+              </label>
             </div>
-
             <div class="row">
-              <div class="field">
-                <label for="spriteSize">Sprite size</label>
+              <label>Sprite Size
                 <select id="spriteSize">
                   <option value="16">16 × 16</option>
                   <option value="24">24 × 24</option>
@@ -296,192 +487,168 @@
                   <option value="48">48 × 48</option>
                   <option value="64">64 × 64</option>
                 </select>
-              </div>
-              <div class="field">
-                <label for="paletteSize">Palette size</label>
+              </label>
+              <label>Palette Size
                 <select id="paletteSize">
                   <option value="8">8 colors</option>
-                  <option value="12">12 colors</option>
                   <option value="16" selected>16 colors</option>
+                  <option value="32">32 colors</option>
                 </select>
-              </div>
-              <div class="field">
-                <label for="previewScale">Preview scale</label>
-                <input id="previewScale" type="range" min="6" max="18" value="10" />
-              </div>
+              </label>
+              <label>Preview Scale
+                <input id="scaleRange" type="range" min="6" max="20" value="12">
+              </label>
             </div>
-
             <div class="row">
-              <button id="convertBtn" class="btn primary">Convert to Pixel Asset</button>
-              <button id="resetBtn" class="btn">Reset</button>
+              <button id="convertBtn" class="btn btn-primary">Convert Image</button>
+              <button id="downloadPngBtn" class="btn">Export PNG</button>
+              <button id="downloadJsonBtn" class="btn">Export JSON</button>
+              <button id="downloadSvgBtn" class="btn">Export SVG</button>
+              <button id="downloadCssBtn" class="btn">Export CSS</button>
+              <button id="downloadHeaderBtn" class="btn">Export C Header</button>
             </div>
-
-            <div class="status" id="statusText">Ready. Start the camera or upload a photo.</div>
           </div>
-
-          <div class="stage" style="margin-top:16px;">
-            <video id="video" autoplay playsinline muted></video>
-            <img id="sourcePreview" class="source-preview" alt="Uploaded or captured source preview" />
-            <canvas id="sourceCanvas" width="512" height="512" hidden></canvas>
-          </div>
-        </div>
-
-        <div class="panel">
-          <div class="section-title">Pixel Asset Output</div>
-          <div class="section-copy">
-            The converted result is a real indexed pixel asset. Export it for web design, GitHub pages, or game pipelines.
-          </div>
-
           <div class="stage">
-            <canvas id="spriteCanvas" width="384" height="384"></canvas>
-          </div>
-
-          <div class="palette" id="paletteGrid"></div>
-        </div>
-      </div>
-    </section>
-
-    <section>
-      <div class="panel exports">
-        <div>
-          <div class="section-title">Export Formats</div>
-          <div class="section-copy">
-            Choose the output that matches your use case. JSON and C header are best for code pipelines. SVG and CSS are ideal for websites and GitHub Pages.
+            <div class="box">
+              <video id="video" autoplay playsinline muted></video>
+              <img id="sourcePreview" alt="Selected source image">
+              <canvas id="captureCanvas" width="512" height="512" class="hidden"></canvas>
+            </div>
           </div>
         </div>
 
-        <div class="row">
-          <button id="exportPngBtn" class="btn">Download PNG</button>
-          <button id="exportJsonBtn" class="btn">Download JSON</button>
-          <button id="exportSvgBtn" class="btn">Download SVG</button>
-          <button id="exportCssBtn" class="btn">Download CSS</button>
-          <button id="exportHeaderBtn" class="btn">Download C Header</button>
+        <div class="card">
+          <div class="card-head">
+            <h2>Generated Asset</h2>
+            <p>The preview, palette, and code below are generated from the selected image so you can use them in sites, pages, and games.</p>
+          </div>
+          <div class="stage">
+            <div class="box">
+              <canvas id="spriteCanvas" width="420" height="420"></canvas>
+            </div>
+          </div>
+          <div id="paletteGrid" class="palette"></div>
         </div>
+      </div>
 
-        <div class="row">
-          <div class="field" style="min-width:100%">
-            <label for="codeOutput">Generated output preview</label>
-            <textarea id="codeOutput" spellcheck="false" placeholder="Convert an image first to generate usable output."></textarea>
+      <div class="card" style="margin-top:18px;">
+        <div class="card-head">
+          <h2>Functional Export Code</h2>
+          <p>Switch exports by using the download buttons. The code area always shows the latest export text.</p>
+        </div>
+        <div class="controls">
+          <textarea id="codeOutput" spellcheck="false" placeholder="Your generated code will appear here."></textarea>
+        </div>
+      </div>
+
+      <div id="guideSection" class="card guide">
+        <div class="card-head" style="padding:0 0 16px;">
+          <h2>Guide</h2>
+          <p>This workflow is designed so the output can be placed into GitHub repositories, websites, app interfaces, and game asset pipelines.</p>
+        </div>
+        <div class="guide-grid">
+          <div class="guide-step">
+            <strong>1. Capture or Upload</strong>
+            <p>Use the camera for a fresh photo or upload an existing portrait. The image is cropped into a square source automatically.</p>
+          </div>
+          <div class="guide-step">
+            <strong>2. Convert Accurately</strong>
+            <p>Choose a sprite size and palette limit. The app samples the real image, builds a color palette, and maps each pixel to the nearest indexed color.</p>
+          </div>
+          <div class="guide-step">
+            <strong>3. Export for Use</strong>
+            <p>Download PNG or SVG for websites, CSS box-shadow art for design systems, JSON for app workflows, or a C header for retro-style game code.</p>
           </div>
         </div>
-
-        <div class="notice">
-          Best use cases:
-          <br>• <strong>SVG / CSS</strong> for websites, GitHub Pages, UI decoration, and design systems
-          <br>• <strong>JSON</strong> for apps, tools, and custom pipelines
-          <br>• <strong>C Header</strong> for retro engines and low-level game workflows
-          <br>• <strong>PNG</strong> for direct asset placement in page layouts and game editors
-        </div>
       </div>
-    </section>
-
-    <section>
-      <div class="grid">
-        <div class="info-card">
-          <h3>What this app does</h3>
-          <p>
-            It captures or uploads a real image, converts it into indexed pixel art, and exports formats that can be reused as functional design elements and game assets.
-          </p>
-        </div>
-        <div class="info-card">
-          <h3>What makes it accurate</h3>
-          <p>
-            The app uses square source cropping, palette quantization, nearest-color indexing, and pixel-perfect preview rendering so the output matches the exported code.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <div class="footer">BitMe • Photo to Pixel Asset Studio • Designed by Mario Garcia</div>
-  </div>
+    </div>
+  </section>
 
   <script>
-    const heroCanvas = document.getElementById('heroCanvas');
+    const homepageAsset = {"name":"bitme_asset","width":64,"height":64,"paletteRGB565":["0xFFFF","0xA80A","0xFF7F","0xA80C","0x988A","0x980A","0xEFFF","0xA88C"],"paletteRGB":[[255,255,255],[170,0,85],[255,238,255],[170,0,102],[153,17,85],[153,0,85],[238,255,255],[170,17,102]],"indexedPixels":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,7,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,2,1,4,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,4,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,1,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1,7,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,3,5,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,3,2,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,1,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,1,7,2,2,0,0,0,0,0,0,0,0,0,2,7,2,2,0,0,0,0,0,0,0,0,0,2,2,0,0,2,1,5,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,3,1,7,0,0,0,0,0,0,0,0,0,6,1,1,1,1,1,7,0,0,0,0,0,0,0,0,2,1,0,0,7,1,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,2,0,0,0,0,0,0,0,2,1,4,7,5,1,1,1,2,0,0,0,0,0,0,0,2,1,2,0,4,3,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,7,1,1,1,2,0,0,0,0,0,7,1,1,1,3,2,2,1,1,1,5,4,0,0,0,0,0,0,0,4,1,2,0,3,1,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,6,1,1,1,4,0,0,0,0,2,3,3,1,1,1,1,1,1,3,1,1,1,3,7,7,0,0,0,0,0,0,0,1,3,0,2,1,1,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,4,0,1,1,1,2,0,0,0,2,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,0,0,0,0,0,0,2,1,5,0,7,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1,7,0,1,1,1,2,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,2,6,0,0,0,1,1,2,2,1,1,1,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,1,4,0,1,1,1,0,0,0,4,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,7,0,0,4,1,5,0,3,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,1,1,7,0,1,1,1,2,0,0,1,7,0,0,0,6,2,5,1,1,1,1,1,1,1,1,1,1,1,1,1,7,0,6,0,0,2,1,1,2,7,1,1,1,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1,1,1,0,1,1,1,2,0,0,2,0,0,0,0,0,0,0,4,1,1,1,1,1,1,1,1,1,1,1,1,2,0,0,0,0,0,1,1,4,2,1,1,1,1,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1,1,1,0,1,3,1,7,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,1,2,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,2,0,0,0,0,0,1,1,4,2,1,1,1,1,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1,1,1,0,1,1,1,7,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,2,0,0,0,0,0,1,1,1,4,1,1,1,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1,1,1,2,7,1,1,1,0,0,0,0,0,0,0,0,0,6,2,1,1,1,1,1,1,1,1,1,1,1,7,0,0,0,0,0,1,1,1,2,1,1,1,1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1,1,1,5,0,3,1,1,2,0,0,0,0,0,0,0,0,0,0,3,1,1,1,1,1,1,1,1,1,7,0,0,0,0,0,1,1,1,7,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,6,2,1,1,1,3,2,2,1,1,1,2,0,0,0,0,0,0,0,0,0,0,3,1,1,1,1,1,1,1,1,5,0,0,0,0,0,1,1,1,4,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,2,1,1,1,1,5,6,2,1,1,3,0,0,0,0,0,0,0,0,0,2,1,1,1,1,1,1,1,1,1,5,0,0,0,0,0,1,1,1,1,1,1,1,1,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,5,2,0,1,1,1,1,7,5,6,2,7,1,1,2,0,0,0,0,0,0,0,5,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,2,1,1,1,1,1,1,1,1,1,7,0,0,0,0,0,0,0,0,0,0,0,0,1,4,0,1,1,1,1,1,1,1,0,0,7,1,5,4,6,0,0,0,0,2,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,7,1,1,1,1,1,1,1,1,1,4,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,4,1,1,1,1,1,1,1,7,0,0,2,7,4,7,0,0,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,0,0,0,3,1,1,1,1,1,1,1,1,1,4,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,2,1,1,1,1,1,1,1,1,1,0,0,2,7,7,2,2,7,1,3,1,1,1,1,1,1,1,1,1,1,1,1,4,0,0,0,4,1,1,1,1,1,1,1,1,1,1,4,0,0,0,0,0,0,0,0,0,0,0,1,3,2,6,7,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,0,0,7,1,1,1,1,1,1,1,1,1,1,1,1,5,0,0,0,0,0,0,0,0,0,0,3,3,1,0,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,7,1,1,1,1,1,1,1,1,1,1,1,1,1,4,0,0,0,0,0,0,0,0,0,0,1,1,1,4,0,4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,7,6,7,1,1,3,1,1,1,1,1,1,1,1,1,1,1,1,4,0,0,0,0,0,0,0,0,0,0,7,1,1,1,7,2,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,3,3,1,1,1,1,1,1,1,1,1,1,1,1,7,6,0,0,0,0,0,0,0,0,0,3,1,1,1,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,0,0,0,0,0,0,0,0,0,0,3,1,1,1,1,7,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,5,1,1,1,1,1,1,7,2,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1,1,1,1,1,1,1,1,7,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,1,1,1,1,1,1,1,1,1,7,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,7,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,7,5,1,1,1,1,1,1,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,5,7,1,1,1,1,1,1,1,1,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,2,1,1,1,1,1,1,1,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,5,2,7,1,1,1,1,1,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,7,3,7,1,1,1,1,1,1,1,1,1,1,1,1,1,3,1,2,0,4,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,3,1,1,1,1,1,1,1,1,1,3,1,4,2,0,7,3,1,1,1,1,3,1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,4,2,0,0,2,7,4,7,4,7,7,2,0,0,0,7,1,1,1,1,1,1,7,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,7,4,7,2,2,2,2,2,2,7,4,1,1,1,1,1,1,4,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,2,7,5,1,1,3,1,3,3,1,1,1,4,2,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]};
+
+    const state = {
+      stream: null,
+      sourceReady: false,
+      latest: null,
+      latestSourceDataUrl: ""
+    };
+
+    const homeScreen = document.getElementById('homeScreen');
+    const appScreen = document.getElementById('appScreen');
+    const launchBtn = document.getElementById('launchBtn');
+    const guideBtn = document.getElementById('guideBtn');
+
+    const heroCanvas = document.getElementById('heroSprite');
     const heroCtx = heroCanvas.getContext('2d');
     heroCtx.imageSmoothingEnabled = false;
 
-    const startCameraBtn = document.getElementById('startCameraBtn');
-    const captureBtn = document.getElementById('captureBtn');
-    const fileInput = document.getElementById('fileInput');
-    const convertBtn = document.getElementById('convertBtn');
-    const resetBtn = document.getElementById('resetBtn');
-
+    const statusText = document.getElementById('statusText');
     const video = document.getElementById('video');
     const sourcePreview = document.getElementById('sourcePreview');
-    const sourceCanvas = document.getElementById('sourceCanvas');
-    const sourceCtx = sourceCanvas.getContext('2d', { willReadFrequently: true });
-
+    const captureCanvas = document.getElementById('captureCanvas');
+    const captureCtx = captureCanvas.getContext('2d', { willReadFrequently: true });
     const spriteCanvas = document.getElementById('spriteCanvas');
     const spriteCtx = spriteCanvas.getContext('2d', { willReadFrequently: true });
     spriteCtx.imageSmoothingEnabled = false;
 
-    const spriteSizeSelect = document.getElementById('spriteSize');
-    const paletteSizeSelect = document.getElementById('paletteSize');
-    const previewScaleInput = document.getElementById('previewScale');
-
+    const fileInput = document.getElementById('fileInput');
+    const startCameraBtn = document.getElementById('startCameraBtn');
+    const captureBtn = document.getElementById('captureBtn');
+    const convertBtn = document.getElementById('convertBtn');
+    const spriteSize = document.getElementById('spriteSize');
+    const paletteSize = document.getElementById('paletteSize');
+    const scaleRange = document.getElementById('scaleRange');
     const paletteGrid = document.getElementById('paletteGrid');
     const codeOutput = document.getElementById('codeOutput');
-    const statusText = document.getElementById('statusText');
 
-    const exportPngBtn = document.getElementById('exportPngBtn');
-    const exportJsonBtn = document.getElementById('exportJsonBtn');
-    const exportSvgBtn = document.getElementById('exportSvgBtn');
-    const exportCssBtn = document.getElementById('exportCssBtn');
-    const exportHeaderBtn = document.getElementById('exportHeaderBtn');
+    const downloadPngBtn = document.getElementById('downloadPngBtn');
+    const downloadJsonBtn = document.getElementById('downloadJsonBtn');
+    const downloadSvgBtn = document.getElementById('downloadSvgBtn');
+    const downloadCssBtn = document.getElementById('downloadCssBtn');
+    const downloadHeaderBtn = document.getElementById('downloadHeaderBtn');
 
-    const state = {
-      stream: null,
-      hasSource: false,
-      latest: null
-    };
-
-    const demoPalette = [
-      [10,18,20],[22,53,58],[38,109,118],[78,205,193],
-      [126,255,238],[234,255,252],[255,216,128],[172,116,78]
-    ];
-    const demoPixels = [
-      0,0,0,1,1,1,1,0,0,0,0,0,
-      0,0,1,4,4,4,4,1,0,0,0,0,
-      0,1,4,5,5,5,5,4,1,0,0,0,
-      0,1,5,7,5,5,7,5,1,0,0,0,
-      1,4,5,5,5,5,5,5,4,1,0,0,
-      1,4,5,2,5,5,2,5,4,1,0,0,
-      1,4,5,5,7,7,5,5,4,1,0,0,
-      0,1,4,5,5,5,5,4,1,0,0,0,
-      0,0,1,4,4,4,4,1,0,0,0,0,
-      0,0,0,1,6,6,1,0,0,0,0,0,
-      0,0,0,6,6,6,6,0,0,0,0,0,
-      0,0,0,0,6,6,0,0,0,0,0,0
-    ];
-
-    function setStatus(message) {
-      statusText.textContent = message;
+    function setStatus(text) {
+      statusText.textContent = text;
     }
 
-    function drawHeroDemo() {
-      const pixelSize = 10;
-      heroCtx.clearRect(0, 0, heroCanvas.width, heroCanvas.height);
-      const width = 12;
-      const height = 12;
-      const offsetX = Math.floor((heroCanvas.width - width * pixelSize) / 2);
-      const offsetY = Math.floor((heroCanvas.height - height * pixelSize) / 2);
-
-      for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-          const idx = demoPixels[y * width + x];
-          const color = demoPalette[idx];
-          heroCtx.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
-          heroCtx.fillRect(offsetX + x * pixelSize, offsetY + y * pixelSize, pixelSize, pixelSize);
+    function renderHomepageAsset() {
+      const w = homepageAsset.width;
+      const h = homepageAsset.height;
+      heroCanvas.width = w;
+      heroCanvas.height = h;
+      heroCtx.clearRect(0, 0, w, h);
+      const imageData = heroCtx.createImageData(w, h);
+      for (let i = 0; i < homepageAsset.indexedPixels.length; i++) {
+        const index = homepageAsset.indexedPixels[i] ?? 0;
+        const color = homepageAsset.paletteRGB[index] || [0,0,0];
+        const offset = i * 4;
+        if (index === 0) {
+          imageData.data[offset + 3] = 0;
+        } else {
+          imageData.data[offset] = color[0];
+          imageData.data[offset + 1] = color[1];
+          imageData.data[offset + 2] = color[2];
+          imageData.data[offset + 3] = 255;
         }
       }
+      heroCtx.putImageData(imageData, 0, 0);
     }
+
+    function showApp() {
+      homeScreen.classList.add('hidden');
+      appScreen.classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+
+    launchBtn.addEventListener('click', showApp);
+    guideBtn.addEventListener('click', () => {
+      showApp();
+      document.getElementById('guideSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
 
     async function startCamera() {
       try {
-        if (!navigator.mediaDevices?.getUserMedia) {
-          setStatus('Camera access is not supported on this browser.');
-          return;
-        }
         if (state.stream) {
           state.stream.getTracks().forEach(track => track.stop());
         }
@@ -497,91 +664,90 @@
         video.srcObject = stream;
         video.style.display = 'block';
         sourcePreview.style.display = 'none';
-        setStatus('Camera started. Frame the image and click Capture Photo.');
+        setStatus('Camera active. Frame your image and press Capture Photo.');
       } catch (err) {
         console.error(err);
-        setStatus('Camera access failed. Use Upload Photo or run from GitHub Pages / localhost.');
+        setStatus('Camera access failed. You can still upload a photo.');
       }
     }
 
     function drawCover(image, ctx, targetW, targetH) {
       const iw = image.videoWidth || image.naturalWidth || image.width;
       const ih = image.videoHeight || image.naturalHeight || image.height;
-      if (!iw || !ih) return;
       const scale = Math.max(targetW / iw, targetH / ih);
-      const drawW = iw * scale;
-      const drawH = ih * scale;
-      const dx = (targetW - drawW) / 2;
-      const dy = (targetH - drawH) / 2;
+      const dw = iw * scale;
+      const dh = ih * scale;
+      const dx = (targetW - dw) / 2;
+      const dy = (targetH - dh) / 2;
       ctx.clearRect(0, 0, targetW, targetH);
-      ctx.drawImage(image, dx, dy, drawW, drawH);
-    }
-
-    function updateSourcePreview() {
-      const dataUrl = sourceCanvas.toDataURL('image/png');
-      sourcePreview.src = dataUrl;
-      sourcePreview.style.display = 'block';
-      video.style.display = 'none';
-      state.hasSource = true;
+      ctx.drawImage(image, dx, dy, dw, dh);
     }
 
     function capturePhoto() {
       if (video.readyState < 2) {
-        setStatus('Camera is not ready yet. Start it first or upload a photo.');
+        setStatus('The camera is not ready yet.');
         return;
       }
-      drawCover(video, sourceCtx, 512, 512);
-      updateSourcePreview();
-      setStatus('Photo captured. Now convert it into a pixel asset.');
+      drawCover(video, captureCtx, captureCanvas.width, captureCanvas.height);
+      state.latestSourceDataUrl = captureCanvas.toDataURL('image/png');
+      sourcePreview.src = state.latestSourceDataUrl;
+      sourcePreview.style.display = 'block';
+      video.style.display = 'none';
+      state.sourceReady = true;
+      setStatus('Photo captured. Click Convert Image to generate your asset.');
     }
 
-    function loadImageFile(file) {
+    function loadFile(file) {
       const reader = new FileReader();
-      reader.onload = e => {
+      reader.onload = event => {
         const img = new Image();
         img.onload = () => {
-          drawCover(img, sourceCtx, 512, 512);
-          updateSourcePreview();
-          setStatus('Photo uploaded. Now convert it into a pixel asset.');
+          drawCover(img, captureCtx, captureCanvas.width, captureCanvas.height);
+          state.latestSourceDataUrl = captureCanvas.toDataURL('image/png');
+          sourcePreview.src = state.latestSourceDataUrl;
+          sourcePreview.style.display = 'block';
+          video.style.display = 'none';
+          state.sourceReady = true;
+          setStatus('Photo uploaded. Click Convert Image to generate your asset.');
         };
-        img.src = e.target.result;
+        img.src = event.target.result;
       };
       reader.readAsDataURL(file);
     }
 
-    function quantizePaletteFromImageData(imageData, paletteSize) {
-      const map = new Map();
-      const d = imageData.data;
-      const step = 255 / 15;
+    function quantizeChannel(value, levels = 16) {
+      const step = 255 / (levels - 1);
+      return Math.round(value / step) * step;
+    }
 
-      for (let i = 0; i < d.length; i += 4) {
-        const a = d[i + 3];
-        if (a < 16) continue;
-        const r = Math.round(d[i] / step) * step;
-        const g = Math.round(d[i + 1] / step) * step;
-        const b = Math.round(d[i + 2] / step) * step;
+    function buildPalette(imageData, limit) {
+      const freq = new Map();
+      const data = imageData.data;
+      for (let i = 0; i < data.length; i += 4) {
+        if (data[i + 3] < 10) continue;
+        const r = quantizeChannel(data[i], 16);
+        const g = quantizeChannel(data[i + 1], 16);
+        const b = quantizeChannel(data[i + 2], 16);
         const key = `${r},${g},${b}`;
-        map.set(key, (map.get(key) || 0) + 1);
+        freq.set(key, (freq.get(key) || 0) + 1);
       }
+      const palette = [...freq.entries()]
+        .sort((a,b) => b[1] - a[1])
+        .slice(0, limit)
+        .map(([key]) => key.split(',').map(Number));
 
-      const palette = [...map.entries()]
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, paletteSize)
-        .map(entry => entry[0].split(',').map(Number));
-
-      while (palette.length < paletteSize) palette.push([0, 0, 0]);
+      while (palette.length < limit) {
+        palette.push([0,0,0]);
+      }
       return palette;
     }
 
-    function nearestIndex(r, g, b, palette) {
+    function nearestPaletteIndex(r, g, b, palette) {
       let best = 0;
       let bestDist = Infinity;
       for (let i = 0; i < palette.length; i++) {
         const [pr, pg, pb] = palette[i];
-        const dr = r - pr;
-        const dg = g - pg;
-        const db = b - pb;
-        const dist = dr * dr + dg * dg + db * db;
+        const dist = (r-pr)*(r-pr) + (g-pg)*(g-pg) + (b-pb)*(b-pb);
         if (dist < bestDist) {
           bestDist = dist;
           best = i;
@@ -596,23 +762,22 @@
     }
 
     function renderPreview(indexed, palette, width, height) {
-      const scale = Number(previewScaleInput.value);
-      const renderW = width * scale;
-      const renderH = height * scale;
-      spriteCanvas.width = Math.max(384, renderW + 32);
-      spriteCanvas.height = Math.max(384, renderH + 32);
+      const scale = Number(scaleRange.value);
+      const drawW = width * scale;
+      const drawH = height * scale;
+      spriteCanvas.width = Math.max(420, drawW + 32);
+      spriteCanvas.height = Math.max(420, drawH + 32);
       spriteCtx.clearRect(0, 0, spriteCanvas.width, spriteCanvas.height);
-      spriteCtx.imageSmoothingEnabled = false;
 
-      const offsetX = Math.floor((spriteCanvas.width - renderW) / 2);
-      const offsetY = Math.floor((spriteCanvas.height - renderH) / 2);
+      const ox = Math.floor((spriteCanvas.width - drawW) / 2);
+      const oy = Math.floor((spriteCanvas.height - drawH) / 2);
 
       for (let y = 0; y < height; y++) {
         for (let x = 0; x < width; x++) {
-          const idx = indexed[y * width + x];
-          const [r, g, b] = palette[idx] || [0, 0, 0];
+          const index = indexed[y * width + x];
+          const [r,g,b] = palette[index];
           spriteCtx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-          spriteCtx.fillRect(offsetX + x * scale, offsetY + y * scale, scale, scale);
+          spriteCtx.fillRect(ox + x * scale, oy + y * scale, scale, scale);
         }
       }
     }
@@ -620,158 +785,97 @@
     function renderPalette(palette) {
       paletteGrid.innerHTML = '';
       palette.forEach((color, index) => {
-        const item = document.createElement('div');
-        item.className = 'swatch';
-        const colorEl = document.createElement('div');
-        colorEl.className = 'swatch-color';
-        colorEl.style.background = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
-        const label = document.createElement('div');
-        label.className = 'swatch-label';
-        label.textContent = `#${index} ${rgb565(color[0], color[1], color[2])}`;
-        item.appendChild(colorEl);
-        item.appendChild(label);
-        paletteGrid.appendChild(item);
+        const swatch = document.createElement('div');
+        swatch.className = 'swatch';
+        swatch.innerHTML = `
+          <div class="swatch-color" style="background: rgb(${color[0]}, ${color[1]}, ${color[2]})"></div>
+          <div class="swatch-label">#${index} · ${rgb565(color[0], color[1], color[2])}</div>
+        `;
+        paletteGrid.appendChild(swatch);
       });
     }
 
-    function buildSvg(indexed, palette, width, height, pixelScale = 1) {
+    function buildSvg(indexed, palette, width, height) {
       const rects = [];
       for (let y = 0; y < height; y++) {
         for (let x = 0; x < width; x++) {
-          const idx = indexed[y * width + x];
-          const [r, g, b] = palette[idx];
-          rects.push(`<rect x="${x * pixelScale}" y="${y * pixelScale}" width="${pixelScale}" height="${pixelScale}" fill="rgb(${r},${g},${b})" />`);
+          const [r,g,b] = palette[indexed[y * width + x]];
+          rects.push(`<rect x="${x}" y="${y}" width="1" height="1" fill="rgb(${r},${g},${b})" />`);
         }
       }
-      return `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="${width * pixelScale}" height="${height * pixelScale}" viewBox="0 0 ${width * pixelScale} ${height * pixelScale}" shape-rendering="crispEdges">
-${rects.join("\n")}
-</svg>`;
+      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" shape-rendering="crispEdges">${rects.join('')}</svg>`;
     }
 
-    function buildCssBoxShadow(indexed, palette, width, height) {
+    function buildCss(indexed, palette, width, height) {
       const shadows = [];
       for (let y = 0; y < height; y++) {
         for (let x = 0; x < width; x++) {
-          const idx = indexed[y * width + x];
-          const [r, g, b] = palette[idx];
+          const [r,g,b] = palette[indexed[y * width + x]];
           shadows.push(`${x}px ${y}px 0 rgb(${r},${g},${b})`);
         }
       }
-      return `.bitme-pixel-art {
-  width: 1px;
-  height: 1px;
-  box-shadow:
-    ${shadows.join(',\n    ')};
-}
-`;
+      return `.bitme-pixel-art {\n  width: 1px;\n  height: 1px;\n  box-shadow:\n    ${shadows.join(',\n    ')};\n}`;
     }
 
-    function buildCHeader(indexed, palette, width, height) {
-      const palette565 = palette.map(([r, g, b]) => rgb565(r, g, b));
-      return `#ifndef BITME_SPRITE_H
-#define BITME_SPRITE_H
-
-#define BITME_WIDTH ${width}
-#define BITME_HEIGHT ${height}
-#define BITME_PALETTE_SIZE ${palette.length}
-
-static const unsigned short bitme_palette[${palette.length}] = {
-  ${palette565.join(', ')}
-};
-
-static const unsigned char bitme_pixels[${indexed.length}] = {
-  ${indexed.join(', ')}
-};
-
-#endif
-`;
+    function buildHeader(indexed, palette, width, height) {
+      const palette565 = palette.map(([r,g,b]) => rgb565(r,g,b));
+      return `#ifndef BITME_ASSET_H\n#define BITME_ASSET_H\n\n#define BITME_ASSET_WIDTH ${width}\n#define BITME_ASSET_HEIGHT ${height}\n#define BITME_ASSET_PALETTE_SIZE ${palette.length}\n\nstatic const unsigned short bitme_asset_palette[${palette.length}] = {\n  ${palette565.join(', ')}\n};\n\nstatic const unsigned char bitme_asset_pixels[${indexed.length}] = {\n  ${indexed.join(', ')}\n};\n\n#endif`;
     }
 
-    function convert() {
-      if (!state.hasSource) {
-        if (video.readyState >= 2) {
-          capturePhoto();
-        } else {
-          setStatus('Add a source photo first.');
-          return;
-        }
+    function convertImage() {
+      if (!state.sourceReady) {
+        setStatus('Capture or upload a photo first.');
+        return;
       }
+      const size = Number(spriteSize.value);
+      const colors = Number(paletteSize.value);
 
-      const spriteSize = Number(spriteSizeSelect.value);
-      const paletteSize = Number(paletteSizeSelect.value);
+      const tmpCanvas = document.createElement('canvas');
+      tmpCanvas.width = size;
+      tmpCanvas.height = size;
+      const tmpCtx = tmpCanvas.getContext('2d', { willReadFrequently: true });
+      tmpCtx.imageSmoothingEnabled = true;
+      tmpCtx.drawImage(captureCanvas, 0, 0, size, size);
 
-      const tmp = document.createElement('canvas');
-      tmp.width = spriteSize;
-      tmp.height = spriteSize;
-      const tctx = tmp.getContext('2d', { willReadFrequently: true });
-      tctx.imageSmoothingEnabled = true;
-      tctx.drawImage(sourceCanvas, 0, 0, spriteSize, spriteSize);
-
-      const imgData = tctx.getImageData(0, 0, spriteSize, spriteSize);
-      const palette = quantizePaletteFromImageData(imgData, paletteSize);
+      const imgData = tmpCtx.getImageData(0, 0, size, size);
+      const palette = buildPalette(imgData, colors);
       const indexed = [];
 
       for (let i = 0; i < imgData.data.length; i += 4) {
         const r = imgData.data[i];
         const g = imgData.data[i + 1];
         const b = imgData.data[i + 2];
-        const a = imgData.data[i + 3];
-        indexed.push(a < 16 ? 0 : nearestIndex(r, g, b, palette));
+        indexed.push(nearestPaletteIndex(r, g, b, palette));
       }
 
-      const palette565 = palette.map(([r, g, b]) => rgb565(r, g, b));
-      const jsonData = {
+      const jsonExport = {
         name: 'bitme_asset',
-        width: spriteSize,
-        height: spriteSize,
-        paletteRGB565: palette565,
+        width: size,
+        height: size,
+        paletteRGB565: palette.map(([r,g,b]) => rgb565(r,g,b)),
         paletteRGB: palette,
         indexedPixels: indexed
       };
 
-      const svg = buildSvg(indexed, palette, spriteSize, spriteSize, 1);
-      const css = buildCssBoxShadow(indexed, palette, spriteSize, spriteSize);
-      const header = buildCHeader(indexed, palette, spriteSize, spriteSize);
-
       state.latest = {
-        width: spriteSize,
-        height: spriteSize,
+        width: size,
+        height: size,
         palette,
         indexed,
-        palette565,
-        json: JSON.stringify(jsonData, null, 2),
-        svg,
-        css,
-        header
+        pngDataUrl: tmpCanvas.toDataURL('image/png'),
+        jsonText: JSON.stringify(jsonExport, null, 2),
+        svgText: buildSvg(indexed, palette, size, size),
+        cssText: buildCss(indexed, palette, size, size),
+        headerText: buildHeader(indexed, palette, size, size)
       };
 
-      renderPreview(indexed, palette, spriteSize, spriteSize);
+      renderPreview(indexed, palette, size, size);
       renderPalette(palette);
-      codeOutput.value = state.latest.json;
-      setStatus('Conversion complete. Your pixel asset is ready to export.');
+      codeOutput.value = state.latest.jsonText;
+      setStatus('Conversion complete. Your asset is ready to export.');
     }
 
-    function resetApp() {
-      if (state.stream) {
-        state.stream.getTracks().forEach(track => track.stop());
-        state.stream = null;
-      }
-      video.srcObject = null;
-      video.style.display = 'block';
-      sourcePreview.src = '';
-      sourcePreview.style.display = 'none';
-      sourceCtx.clearRect(0, 0, sourceCanvas.width, sourceCanvas.height);
-      spriteCtx.clearRect(0, 0, spriteCanvas.width, spriteCanvas.height);
-      paletteGrid.innerHTML = '';
-      codeOutput.value = '';
-      state.hasSource = false;
-      state.latest = null;
-      setStatus('Reset complete. Start the camera or upload a photo.');
-      drawHeroDemo();
-    }
-
-    function downloadText(filename, content, type = 'text/plain') {
+    function downloadBlob(filename, content, type) {
       const blob = new Blob([content], { type });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -783,84 +887,53 @@ static const unsigned char bitme_pixels[${indexed.length}] = {
       URL.revokeObjectURL(url);
     }
 
-    function downloadCanvasPng(canvas, filename) {
-      canvas.toBlob(blob => {
-        if (!blob) return;
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
-      });
+    function downloadDataUrl(filename, url) {
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
     }
 
     startCameraBtn.addEventListener('click', startCamera);
     captureBtn.addEventListener('click', capturePhoto);
-    convertBtn.addEventListener('click', convert);
-    resetBtn.addEventListener('click', resetApp);
-
+    convertBtn.addEventListener('click', convertImage);
     fileInput.addEventListener('change', e => {
       const file = e.target.files?.[0];
-      if (file) loadImageFile(file);
+      if (file) loadFile(file);
+    });
+    scaleRange.addEventListener('input', () => {
+      if (state.latest) renderPreview(state.latest.indexed, state.latest.palette, state.latest.width, state.latest.height);
     });
 
-    previewScaleInput.addEventListener('input', () => {
-      if (state.latest) {
-        renderPreview(state.latest.indexed, state.latest.palette, state.latest.width, state.latest.height);
-      }
+    downloadPngBtn.addEventListener('click', () => {
+      if (!state.latest) return setStatus('Convert an image first.');
+      downloadDataUrl('bitme-asset.png', state.latest.pngDataUrl);
+    });
+    downloadJsonBtn.addEventListener('click', () => {
+      if (!state.latest) return setStatus('Convert an image first.');
+      codeOutput.value = state.latest.jsonText;
+      downloadBlob('bitme-asset.json', state.latest.jsonText, 'application/json');
+    });
+    downloadSvgBtn.addEventListener('click', () => {
+      if (!state.latest) return setStatus('Convert an image first.');
+      codeOutput.value = state.latest.svgText;
+      downloadBlob('bitme-asset.svg', state.latest.svgText, 'image/svg+xml');
+    });
+    downloadCssBtn.addEventListener('click', () => {
+      if (!state.latest) return setStatus('Convert an image first.');
+      codeOutput.value = state.latest.cssText;
+      downloadBlob('bitme-asset.css', state.latest.cssText, 'text/css');
+    });
+    downloadHeaderBtn.addEventListener('click', () => {
+      if (!state.latest) return setStatus('Convert an image first.');
+      codeOutput.value = state.latest.headerText;
+      downloadBlob('bitme-asset.h', state.latest.headerText, 'text/plain');
     });
 
-    exportPngBtn.addEventListener('click', () => {
-      if (!state.latest) return setStatus('Convert an image before exporting PNG.');
-      const out = document.createElement('canvas');
-      out.width = state.latest.width;
-      out.height = state.latest.height;
-      const octx = out.getContext('2d');
-      octx.imageSmoothingEnabled = false;
-      for (let y = 0; y < state.latest.height; y++) {
-        for (let x = 0; x < state.latest.width; x++) {
-          const idx = state.latest.indexed[y * state.latest.width + x];
-          const [r, g, b] = state.latest.palette[idx];
-          octx.fillStyle = `rgb(${r},${g},${b})`;
-          octx.fillRect(x, y, 1, 1);
-        }
-      }
-      downloadCanvasPng(out, 'bitme-asset.png');
-      setStatus('PNG downloaded.');
-    });
-
-    exportJsonBtn.addEventListener('click', () => {
-      if (!state.latest) return setStatus('Convert an image before exporting JSON.');
-      codeOutput.value = state.latest.json;
-      downloadText('bitme-asset.json', state.latest.json, 'application/json');
-      setStatus('JSON downloaded.');
-    });
-
-    exportSvgBtn.addEventListener('click', () => {
-      if (!state.latest) return setStatus('Convert an image before exporting SVG.');
-      codeOutput.value = state.latest.svg;
-      downloadText('bitme-asset.svg', state.latest.svg, 'image/svg+xml');
-      setStatus('SVG downloaded.');
-    });
-
-    exportCssBtn.addEventListener('click', () => {
-      if (!state.latest) return setStatus('Convert an image before exporting CSS.');
-      codeOutput.value = state.latest.css;
-      downloadText('bitme-asset.css', state.latest.css, 'text/css');
-      setStatus('CSS downloaded.');
-    });
-
-    exportHeaderBtn.addEventListener('click', () => {
-      if (!state.latest) return setStatus('Convert an image before exporting C Header.');
-      codeOutput.value = state.latest.header;
-      downloadText('bitme-asset.h', state.latest.header, 'text/plain');
-      setStatus('C header downloaded.');
-    });
-
-    drawHeroDemo();
+    renderHomepageAsset();
+    setStatus('Ready. Start the camera or upload a photo.');
   </script>
 </body>
 </html>
