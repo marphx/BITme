@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BitMe — designed by Mario Garcia</title>
+  <meta name="description" content="Capture a face, convert it into a 16-bit pixel sprite, and export usable game-ready code." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="shell">
+    <header class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">16-bit face capture studio</p>
+        <h1>BitMe</h1>
+        <p class="sub">Turn a face photo into a clean 16-color sprite sheet preview and export game-friendly code.</p>
+        <p class="credit">designed by Mario Garcia</p>
+      </div>
+      <div class="controls card">
+        <div class="field-row">
+          <button id="startCameraBtn" class="btn btn-primary">Start Camera</button>
+          <button id="captureBtn" class="btn">Capture Face</button>
+          <label class="btn upload-btn">
+            Upload Photo
+            <input id="fileInput" type="file" accept="image/*" hidden />
+          </label>
+        </div>
+        <div class="field-row sliders">
+          <label>Sprite Size
+            <select id="spriteSize">
+              <option value="16">16 × 16</option>
+              <option value="24">24 × 24</option>
+              <option value="32" selected>32 × 32</option>
+              <option value="48">48 × 48</option>
+            </select>
+          </label>
+          <label>Pixel Scale
+            <input id="scaleRange" type="range" min="8" max="20" value="12" />
+          </label>
+        </div>
+        <div class="field-row">
+          <button id="convertBtn" class="btn btn-accent">Convert to 16-Bit Sprite</button>
+          <button id="downloadJsonBtn" class="btn">Export JSON</button>
+          <button id="downloadHeaderBtn" class="btn">Export C Header</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <section class="panel card">
+        <h2>Camera / Source</h2>
+        <div class="media-wrap">
+          <video id="video" autoplay playsinline muted></video>
+          <img id="sourcePreview" alt="Source preview" />
+          <canvas id="captureCanvas" width="256" height="256" hidden></canvas>
+        </div>
+      </section>
+
+      <section class="panel card">
+        <h2>16-Bit Sprite Preview</h2>
+        <div class="preview-wrap">
+          <canvas id="spriteCanvas" width="384" height="384"></canvas>
+        </div>
+        <div id="paletteGrid" class="palette-grid"></div>
+      </section>
+    </main>
+
+    <section class="exports card">
+      <div class="export-head">
+        <h2>Generated Game Data</h2>
+        <p>Outputs a 16-color RGB565 palette plus indexed pixel data for retro game pipelines.</p>
+      </div>
+      <textarea id="codeOutput" spellcheck="false"></textarea>
+    </section>
+
+    <section class="info card">
+      <div class="info-grid">
+        <article>
+          <h3>Simple</h3>
+          <p>One page, direct controls, no setup-heavy framework.</p>
+        </article>
+        <article>
+          <h3>Accurate</h3>
+          <p>Quantizes the image to 16 colors and maps every output pixel to the nearest palette color.</p>
+        </article>
+        <article>
+          <h3>Useful</h3>
+          <p>Exports a C-style header and a JSON package with width, height, palette, and indexed pixel data.</p>
+        </article>
+      </div>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
