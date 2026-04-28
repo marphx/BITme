@@ -1,299 +1,294 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BitMe | Designed by Mario Garcia</title>
-  <meta name="description" content="BitMe converts a face photo into a 16-bit style sprite and exports game-friendly code." />
+  <title>BitMe — Photo to Pixel Asset Studio</title>
+  <meta name="description" content="Take a photo or upload one, convert it into accurate pixel-art asset code, and export usable design elements for websites, apps, and game projects." />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <meta property="og:title" content="BitMe — Photo to Pixel Asset Studio" />
+  <meta property="og:description" content="Capture a face or upload an image, convert it into pixel-art code, and export usable assets for websites, apps, and games." />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="BitMe" />
+  <meta name="twitter:card" content="summary_large_image" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
     :root{
-      --bg:#070707;
-      --bg2:#100d09;
-      --panel:#15110d;
-      --panel2:#1b1510;
-      --gold:#f0d48b;
-      --gold2:#c8973e;
-      --gold3:#fff2cd;
-      --line:rgba(240,212,139,.22);
-      --line2:rgba(240,212,139,.38);
-      --muted:#d1c09b;
-      --text:#fff8e8;
-      --shadow:0 12px 40px rgba(0,0,0,.45);
+      --bg:#071216;
+      --bg2:#0c1a1f;
+      --panel:#102229;
+      --panel2:#132b33;
+      --line:#2ce7d3;
+      --line-soft:rgba(44,231,211,.26);
+      --line-faint:rgba(44,231,211,.12);
+      --text:#eafffc;
+      --muted:#92beb8;
+      --accent:#7effee;
+      --accent2:#2ce7d3;
+      --warn:#ffd979;
+      --ok:#95ffb3;
+      --shadow:0 0 0 1px rgba(44,231,211,.14), 0 0 28px rgba(44,231,211,.08);
+      --radius:22px;
     }
     *{box-sizing:border-box;margin:0;padding:0}
-    html,body{min-height:100%}
+    html{scroll-behavior:smooth}
     body{
-      font-family:Inter,sans-serif;
-      color:var(--text);
+      font-family:Inter,system-ui,sans-serif;
       background:
-        radial-gradient(circle at 50% 0%, rgba(240,212,139,.08), transparent 24%),
-        linear-gradient(180deg,#050505 0%,#0a0907 55%,#0d0b09 100%);
+        radial-gradient(circle at top, rgba(44,231,211,.08), transparent 32%),
+        linear-gradient(180deg,#040b0d,#071216 28%,#081519 100%);
+      color:var(--text);
+      min-height:100vh;
       overflow-x:hidden;
     }
     body::before{
       content:"";
-      position:fixed; inset:0;
+      position:fixed;inset:0;pointer-events:none;opacity:.18;
       background:
-        linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
-      background-size:26px 26px;
-      opacity:.14; pointer-events:none;
+        linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
+      background-size:24px 24px;
     }
-    .page{min-height:100vh}
-    .home{
-      min-height:100vh;
-      display:flex;
-      justify-content:center;
-      padding:28px 16px 42px;
-    }
-    .shell{
-      width:min(1100px,100%);
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:24px;
-    }
-    .hero-portrait{
-      width:min(560px,92vw);
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:16px;
-      padding-top:10px;
-    }
-    .portrait-stage{
+    .wrap{width:min(1240px,calc(100% - 32px));margin:0 auto}
+    .hero{
+      padding:56px 0 28px;
       position:relative;
-      width:100%;
-      display:grid;
-      place-items:center;
-      min-height:360px;
     }
-    .portrait-glow{
-      position:absolute;
-      width:min(360px,66vw);
-      height:min(360px,66vw);
-      border-radius:50%;
-      background:
-        radial-gradient(circle, rgba(255,242,205,.30) 0%, rgba(240,212,139,.18) 30%, rgba(200,151,62,.10) 52%, transparent 72%);
-      filter:blur(22px);
-      opacity:.95;
-    }
-    .portrait-frame{
-      position:relative;
-      width:320px;
-      height:320px;
-      display:grid;
-      place-items:center;
-      border:1px solid var(--line);
-      border-radius:24px;
-      background:linear-gradient(180deg, rgba(22,17,13,.96), rgba(12,10,8,.98));
-      box-shadow:0 0 0 1px rgba(255,255,255,.02), var(--shadow);
+    .hero-card{
+      border:1px solid var(--line-soft);
+      background:linear-gradient(180deg, rgba(12,26,31,.92), rgba(10,20,24,.98));
+      border-radius:32px;
+      box-shadow:var(--shadow);
       overflow:hidden;
+      position:relative;
     }
-    .portrait-frame::before{
+    .hero-card::before{
       content:"";
-      position:absolute;
-      inset:12px;
-      border:1px solid rgba(240,212,139,.08);
-      border-radius:18px;
+      position:absolute;inset:0;
+      background:
+        radial-gradient(circle at 18% 18%, rgba(126,255,238,.09), transparent 20%),
+        radial-gradient(circle at 82% 22%, rgba(44,231,211,.08), transparent 18%);
       pointer-events:none;
     }
-    #heroCanvas{
-      width:256px;
-      height:256px;
-      image-rendering:pixelated;
-      image-rendering:crisp-edges;
-      image-rendering:-moz-crisp-edges;
-      image-rendering:-webkit-optimize-contrast;
-      -ms-interpolation-mode:nearest-neighbor;
-      object-fit:contain;
-      filter:
-        drop-shadow(0 0 8px rgba(255,227,163,.20))
-        drop-shadow(0 0 18px rgba(240,212,139,.12));
-      display:block;
-    }
-    .title-card{
-      width:min(860px,100%);
-      background:linear-gradient(180deg, rgba(17,13,10,.92), rgba(11,9,7,.98));
-      border:1px solid var(--line);
-      border-radius:24px;
-      padding:26px 20px 22px;
-      text-align:center;
-      box-shadow:var(--shadow);
-    }
-    .tag{
-      display:inline-flex; align-items:center; gap:10px;
-      padding:10px 14px;
-      border:1px solid var(--line2);
-      border-radius:999px;
-      background:rgba(240,212,139,.08);
-      color:var(--gold);
-      font-size:11px;
-      letter-spacing:.08em;
-      text-transform:uppercase;
-      font-weight:800;
-      margin-bottom:18px;
-    }
-    .dot{
-      width:8px;height:8px;border-radius:50%;
-      background:var(--gold);
-      box-shadow:0 0 12px rgba(240,212,139,.9);
-    }
-    h1{
-      font-family:"Press Start 2P", monospace;
-      font-size:clamp(22px,4.2vw,46px);
-      line-height:1.3;
-      color:var(--gold3);
-      text-shadow:
-        0 3px 0 rgba(0,0,0,.45),
-        0 0 12px rgba(255,242,205,.18),
-        0 0 30px rgba(240,212,139,.08);
-      margin-bottom:18px;
-    }
-    h1 span{ color:var(--gold); }
-    .sub{
-      max-width:720px;
-      margin:0 auto 16px;
-      color:var(--muted);
-      line-height:1.8;
-      font-size:16px;
-    }
-    .credit{
-      color:#ffe7a6;
-      font-weight:700;
-      margin-bottom:18px;
-    }
-    .actions{display:flex; flex-wrap:wrap; gap:12px; justify-content:center}
-    .btn{
-      appearance:none; border:none; cursor:pointer;
-      padding:14px 18px; border-radius:14px;
-      font:700 14px Inter,sans-serif; color:var(--text);
-      background:linear-gradient(180deg,#1e1711,#130f0b);
-      border:1px solid var(--line);
-      box-shadow:var(--shadow);
-    }
-    .btn.primary{background:linear-gradient(180deg, rgba(240,212,139,.22), rgba(19,15,11,.98))}
-    .btn:hover{border-color:var(--line2)}
-    .notice{
-      font-size:12px; color:#f6d694; margin-top:12px; line-height:1.6;
-    }
-
-    .app{display:none; padding:18px 14px 32px}
-    .app.active{display:block}
-    .app-shell{width:min(1180px,100%); margin:0 auto; display:grid; gap:16px}
-    .topbar,.card{
-      background:linear-gradient(180deg, rgba(17,13,10,.96), rgba(11,9,7,.98));
-      border:1px solid var(--line);
-      border-radius:20px;
-      box-shadow:var(--shadow);
-    }
     .topbar{
-      padding:18px 20px; display:flex; justify-content:space-between; gap:12px; align-items:center;
+      display:flex;justify-content:space-between;align-items:center;gap:16px;
+      padding:20px 24px;border-bottom:1px solid var(--line-faint);position:relative;z-index:1
     }
-    .brand h2{
+    .brand{display:flex;align-items:center;gap:14px}
+    .logo{
+      width:52px;height:52px;border-radius:16px;display:grid;place-items:center;
+      background:linear-gradient(180deg, rgba(126,255,238,.18), rgba(19,34,40,.95));
+      border:1px solid var(--line-soft);box-shadow:0 0 22px rgba(44,231,211,.1);
+      font-family:"Press Start 2P", monospace;font-size:12px;color:var(--accent)
+    }
+    .brand h1{
       font-family:"Press Start 2P", monospace;
-      font-size:20px;
-      color:var(--gold3);
-      margin-bottom:8px;
+      font-size:clamp(18px,2.2vw,24px);line-height:1.3
     }
-    .brand p,.status{color:var(--muted); font-size:13px}
-    .grid{display:grid; grid-template-columns:1.05fr .95fr; gap:16px}
-    .card-head{padding:18px 18px 0}
-    .card-head h3{
+    .brand p{color:var(--muted);font-size:13px;margin-top:6px}
+    .tag{
+      display:inline-flex;align-items:center;gap:10px;padding:10px 14px;border-radius:999px;
+      background:rgba(44,231,211,.08);border:1px solid var(--line-soft);font-size:11px;
+      text-transform:uppercase;letter-spacing:.12em;font-weight:800;color:var(--accent)
+    }
+    .tag::before{
+      content:"";width:8px;height:8px;border-radius:50%;background:var(--accent);
+      box-shadow:0 0 12px rgba(126,255,238,.9)
+    }
+    .hero-main{
+      display:grid;grid-template-columns:1.15fr .85fr;gap:24px;align-items:center;
+      padding:34px 24px 28px;position:relative;z-index:1
+    }
+    .hero-copy h2{
       font-family:"Press Start 2P", monospace;
-      font-size:13px; line-height:1.5; color:var(--gold3);
-      margin-bottom:10px;
+      font-size:clamp(28px,4.4vw,54px);line-height:1.22;margin:18px 0 20px;
+      text-shadow:0 0 16px rgba(126,255,238,.14)
     }
-    .card-head p{color:var(--muted); font-size:13px; line-height:1.7}
-    .controls,.stage,.exports,.info{padding:18px}
-    .row{display:flex; flex-wrap:wrap; gap:10px; margin-bottom:12px}
-    label{display:flex; flex-direction:column; gap:8px; color:#f3ddb1; font-size:12px; flex:1; min-width:160px}
+    .hero-copy h2 span{color:var(--accent)}
+    .hero-copy p{
+      color:var(--muted);font-size:17px;line-height:1.8;max-width:760px
+    }
+    .hero-actions{display:flex;flex-wrap:wrap;gap:14px;margin-top:24px}
+    .btn{
+      appearance:none;border:none;cursor:pointer;font:inherit;font-weight:800;
+      border-radius:16px;padding:14px 18px;color:var(--text);
+      background:linear-gradient(180deg,#163138,#102329);
+      border:1px solid var(--line-soft);box-shadow:var(--shadow);
+      transition:transform .14s ease,border-color .18s ease, box-shadow .18s ease;
+      text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:10px
+    }
+    .btn:hover{transform:translateY(-1px);border-color:rgba(126,255,238,.5);box-shadow:0 0 0 1px rgba(126,255,238,.18),0 0 28px rgba(44,231,211,.12)}
+    .btn.primary{background:linear-gradient(180deg, rgba(126,255,238,.24), rgba(16,35,41,.96))}
+    .hero-panel,.panel,.info-card,.guide-card{
+      border:1px solid var(--line-soft);border-radius:24px;background:linear-gradient(180deg, rgba(16,34,41,.92), rgba(12,24,29,.98));box-shadow:var(--shadow)
+    }
+    .hero-panel{padding:18px}
+    .mini-preview{
+      border:1px solid var(--line-faint);border-radius:18px;padding:18px;background:#0b1518
+    }
+    .mini-preview canvas{display:block;width:min(100%,320px);aspect-ratio:1/1;margin:0 auto;image-rendering:pixelated}
+    .mini-preview p{font-size:12px;color:var(--muted);line-height:1.7;text-align:center;margin-top:14px}
+    section{padding:16px 0 0}
+    .section-title{
+      font-family:"Press Start 2P", monospace;font-size:16px;line-height:1.6;margin-bottom:10px
+    }
+    .section-copy{color:var(--muted);font-size:14px;line-height:1.8;margin-bottom:16px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    .panel{padding:20px}
+    .controls{display:grid;gap:14px}
+    .row{display:flex;flex-wrap:wrap;gap:10px}
+    .field{display:flex;flex-direction:column;gap:8px;flex:1;min-width:170px}
+    .field label,.tiny-label{font-size:12px;color:#c7fffa;font-weight:700}
     select,input[type="range"],textarea{
-      width:100%; background:#130f0b; color:var(--text); border:1px solid var(--line);
-      border-radius:12px; padding:12px; font:inherit;
+      width:100%;border-radius:14px;border:1px solid rgba(44,231,211,.22);outline:none;
+      background:#0a1518;color:var(--text);padding:12px;font:inherit
     }
-    .media-box,.preview-box{
-      min-height:380px; display:grid; place-items:center;
-      border:1px solid rgba(240,212,139,.12);
-      border-radius:16px; background:#0f0c09; overflow:hidden;
+    textarea{min-height:260px;resize:vertical;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;line-height:1.65}
+    .stage{
+      border:1px solid var(--line-faint);border-radius:20px;min-height:360px;
+      background:linear-gradient(180deg, #0d181c, #091115);position:relative;overflow:hidden;
+      display:grid;place-items:center
     }
-    video,img.source{
-      width:100%; height:100%; object-fit:cover; display:block; background:#0f0c09;
+    .stage::before{
+      content:"";position:absolute;inset:0;pointer-events:none;
+      background:
+        linear-gradient(rgba(255,255,255,.014) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.014) 1px, transparent 1px);
+      background-size:18px 18px;
     }
-    img.source{display:none}
+    video,img.source-preview{width:100%;height:100%;object-fit:cover;display:block;background:#081013}
+    img.source-preview{display:none}
     #spriteCanvas{
-      width:min(100%,420px); height:auto;
-      image-rendering:pixelated; image-rendering:crisp-edges; display:block;
-      background:#100d09; border:1px solid rgba(240,212,139,.18); border-radius:12px;
+      display:block;width:min(100%,430px);height:auto;image-rendering:pixelated;image-rendering:crisp-edges;
+      background:#081013;border:1px solid var(--line-faint);border-radius:14px
     }
-    .palette{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px}
-    .swatch{border:1px solid rgba(240,212,139,.15); border-radius:12px; overflow:hidden; background:#120e0b}
-    .swatch-color{height:32px}
-    .swatch-label{font-size:11px; text-align:center; padding:8px; color:#ffe9b1}
-    textarea{min-height:220px; resize:vertical; font:12px/1.6 ui-monospace, monospace}
-    @media (max-width:900px){
-      .grid{grid-template-columns:1fr}
-      .portrait-frame{width:290px;height:290px}
-      #heroCanvas{width:224px;height:224px}
+    .palette{
+      display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:10px;margin-top:14px
+    }
+    .swatch{border:1px solid rgba(44,231,211,.16);border-radius:14px;overflow:hidden;background:#0a1518}
+    .swatch-color{height:34px}
+    .swatch-label{padding:8px;font-size:11px;color:#c8fbf5;text-align:center}
+    .exports{display:grid;gap:18px}
+    .guide{
+      display:grid;grid-template-columns:repeat(4,1fr);gap:14px
+    }
+    .guide-card,.info-card{padding:16px}
+    .guide-card h3,.info-card h3{
+      font-family:"Press Start 2P", monospace;font-size:11px;line-height:1.6;margin-bottom:10px
+    }
+    .guide-card p,.info-card p{font-size:13px;color:var(--muted);line-height:1.8}
+    .notice{
+      padding:14px 16px;border-radius:16px;border:1px solid rgba(255,217,121,.28);
+      background:rgba(255,217,121,.07);color:#ffe7ab;font-size:13px;line-height:1.8
+    }
+    .status{
+      display:flex;align-items:center;gap:10px;color:#c7fffa;font-size:13px
+    }
+    .status::before{
+      content:"";width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 10px rgba(149,255,179,.9)
+    }
+    .footer{padding:20px 0 34px;text-align:center;color:#7db0aa;font-size:12px}
+    @media (max-width: 1020px){
+      .hero-main,.grid,.guide{grid-template-columns:1fr}
+    }
+    @media (max-width: 720px){
+      .palette{grid-template-columns:repeat(4,minmax(0,1fr))}
+      .topbar{flex-direction:column;align-items:flex-start}
+      .hero-copy p{font-size:15px}
+      .wrap{width:min(1240px,calc(100% - 16px))}
+      .hero{padding-top:18px}
     }
   </style>
 </head>
 <body>
-  <section class="home page" id="homeScreen">
-    <div class="shell">
-      <div class="hero-portrait">
-        <div class="portrait-stage">
-          <div class="portrait-glow"></div>
-          <div class="portrait-frame">
-            <canvas id="heroCanvas" width="64" height="64" aria-label="Pixel portrait"></canvas>
+  <div class="wrap">
+    <header class="hero">
+      <div class="hero-card">
+        <div class="topbar">
+          <div class="brand">
+            <div class="logo">BM</div>
+            <div>
+              <h1>BitMe</h1>
+              <p>Designed by Mario Garcia</p>
+            </div>
+          </div>
+          <div class="tag">Photo to functional pixel code</div>
+        </div>
+
+        <div class="hero-main">
+          <div class="hero-copy">
+            <h2>Turn a <span>real photo</span> into usable pixel-art code.</h2>
+            <p>
+              BitMe lets you take a photo with your camera or upload one from your device, convert it into a clean pixel-art asset, and export accurate code formats that can be used in websites, apps, GitHub pages, and retro-style game projects.
+            </p>
+            <div class="hero-actions">
+              <a href="#studio" class="btn primary">Open Studio</a>
+              <a href="#guide" class="btn">Read Guide</a>
+            </div>
+          </div>
+
+          <div class="hero-panel">
+            <div class="mini-preview">
+              <canvas id="heroCanvas" width="128" height="128" aria-label="pixel preview"></canvas>
+              <p>
+                Real capture • Real upload • Real export<br />
+                PNG sprite, JSON data, SVG pixel art, CSS box-shadow art, and C header output.
+              </p>
+            </div>
           </div>
         </div>
       </div>
+    </header>
 
-      <div class="title-card">
-        <div class="tag"><span class="dot"></span> Pixel Face Converter</div>
-        <h1><span>BIT</span>ME</h1>
-        <p class="sub">Take a face photo, convert it into a crisp 16-bit style sprite, and export game-friendly code for your retro workflow.</p>
-        <p class="credit">Designed by Mario Garcia</p>
-        <div class="actions">
-          <button class="btn primary" id="launchBtn">Launch BitMe</button>
-          <button class="btn" id="howBtn">How It Works</button>
+    <section id="guide">
+      <div class="panel">
+        <div class="section-title">Quick Guide</div>
+        <div class="section-copy">
+          This app is designed to produce practical pixel assets, not just a filter effect.
         </div>
-        <div class="notice" id="heroNotice"></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="app page" id="appScreen">
-    <div class="app-shell">
-      <div class="topbar">
-        <div class="brand">
-          <h2>BitMe</h2>
-          <p>Capture your face and turn it into 16-bit sprite data.</p>
+        <div class="guide">
+          <div class="guide-card">
+            <h3>1. Add Image</h3>
+            <p>Start the camera and capture a photo, or upload one directly from your device.</p>
+          </div>
+          <div class="guide-card">
+            <h3>2. Convert</h3>
+            <p>Choose a sprite size and palette depth, then convert the image into indexed pixel data.</p>
+          </div>
+          <div class="guide-card">
+            <h3>3. Export</h3>
+            <p>Download PNG, JSON, SVG, CSS, or C header output depending on where you want to use it.</p>
+          </div>
+          <div class="guide-card">
+            <h3>4. Use It</h3>
+            <p>Place the exported asset into websites, GitHub Pages, design systems, or game code pipelines.</p>
+          </div>
         </div>
-        <div class="status" id="statusText">Ready. Launch camera or upload a photo.</div>
       </div>
+    </section>
 
+    <section id="studio">
       <div class="grid">
-        <div class="card">
-          <div class="card-head">
-            <h3>Controls</h3>
-            <p>Use the camera or upload a photo, then convert it into a game-ready pixel sprite.</p>
+        <div class="panel">
+          <div class="section-title">Source Input</div>
+          <div class="section-copy">
+            Use your webcam or upload a file. The app will crop and scale the image into a square source before conversion.
           </div>
+
           <div class="controls">
             <div class="row">
               <button id="startCameraBtn" class="btn">Start Camera</button>
-              <button id="captureBtn" class="btn">Capture Face</button>
-              <label class="btn" style="display:inline-flex;justify-content:center;align-items:center;">
-                Upload Photo
-                <input id="fileInput" type="file" accept="image/*" hidden />
-              </label>
+              <button id="captureBtn" class="btn">Capture Photo</button>
+              <label class="btn" for="fileInput">Upload Photo</label>
+              <input id="fileInput" type="file" accept="image/*" hidden />
             </div>
+
             <div class="row">
-              <label>Sprite Size
+              <div class="field">
+                <label for="spriteSize">Sprite size</label>
                 <select id="spriteSize">
                   <option value="16">16 × 16</option>
                   <option value="24">24 × 24</option>
@@ -301,295 +296,571 @@
                   <option value="48">48 × 48</option>
                   <option value="64">64 × 64</option>
                 </select>
-              </label>
-              <label>Preview Scale
-                <input id="scaleRange" type="range" min="6" max="20" value="12" />
-              </label>
+              </div>
+              <div class="field">
+                <label for="paletteSize">Palette size</label>
+                <select id="paletteSize">
+                  <option value="8">8 colors</option>
+                  <option value="12">12 colors</option>
+                  <option value="16" selected>16 colors</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="previewScale">Preview scale</label>
+                <input id="previewScale" type="range" min="6" max="18" value="10" />
+              </div>
             </div>
+
             <div class="row">
-              <button id="convertBtn" class="btn primary">Convert to 16-Bit Sprite</button>
-              <button id="downloadJsonBtn" class="btn">Export JSON</button>
-              <button id="downloadHeaderBtn" class="btn">Export C Header</button>
+              <button id="convertBtn" class="btn primary">Convert to Pixel Asset</button>
+              <button id="resetBtn" class="btn">Reset</button>
             </div>
+
+            <div class="status" id="statusText">Ready. Start the camera or upload a photo.</div>
           </div>
-          <div class="stage">
-            <div class="media-box">
-              <video id="video" autoplay playsinline muted></video>
-              <img id="sourcePreview" class="source" alt="Source preview" />
-              <canvas id="captureCanvas" width="256" height="256" hidden></canvas>
-            </div>
+
+          <div class="stage" style="margin-top:16px;">
+            <video id="video" autoplay playsinline muted></video>
+            <img id="sourcePreview" class="source-preview" alt="Uploaded or captured source preview" />
+            <canvas id="sourceCanvas" width="512" height="512" hidden></canvas>
           </div>
         </div>
 
-        <div class="card">
-          <div class="card-head">
-            <h3>16-Bit Sprite Preview</h3>
-            <p>Your image is reduced to a 16-color palette and converted into indexed sprite data.</p>
+        <div class="panel">
+          <div class="section-title">Pixel Asset Output</div>
+          <div class="section-copy">
+            The converted result is a real indexed pixel asset. Export it for web design, GitHub pages, or game pipelines.
           </div>
-          <div class="stage">
-            <div class="preview-box">
-              <canvas id="spriteCanvas" width="384" height="384"></canvas>
-            </div>
-            <div id="paletteGrid" class="palette"></div>
-          </div>
-        </div>
-      </div>
 
-      <div class="card">
-        <div class="exports">
-          <div class="card-head" style="padding:0 0 10px 0">
-            <h3>Generated Game Data</h3>
+          <div class="stage">
+            <canvas id="spriteCanvas" width="384" height="384"></canvas>
           </div>
-          <textarea id="codeOutput" spellcheck="false"></textarea>
+
+          <div class="palette" id="paletteGrid"></div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
+
+    <section>
+      <div class="panel exports">
+        <div>
+          <div class="section-title">Export Formats</div>
+          <div class="section-copy">
+            Choose the output that matches your use case. JSON and C header are best for code pipelines. SVG and CSS are ideal for websites and GitHub Pages.
+          </div>
+        </div>
+
+        <div class="row">
+          <button id="exportPngBtn" class="btn">Download PNG</button>
+          <button id="exportJsonBtn" class="btn">Download JSON</button>
+          <button id="exportSvgBtn" class="btn">Download SVG</button>
+          <button id="exportCssBtn" class="btn">Download CSS</button>
+          <button id="exportHeaderBtn" class="btn">Download C Header</button>
+        </div>
+
+        <div class="row">
+          <div class="field" style="min-width:100%">
+            <label for="codeOutput">Generated output preview</label>
+            <textarea id="codeOutput" spellcheck="false" placeholder="Convert an image first to generate usable output."></textarea>
+          </div>
+        </div>
+
+        <div class="notice">
+          Best use cases:
+          <br>• <strong>SVG / CSS</strong> for websites, GitHub Pages, UI decoration, and design systems
+          <br>• <strong>JSON</strong> for apps, tools, and custom pipelines
+          <br>• <strong>C Header</strong> for retro engines and low-level game workflows
+          <br>• <strong>PNG</strong> for direct asset placement in page layouts and game editors
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="grid">
+        <div class="info-card">
+          <h3>What this app does</h3>
+          <p>
+            It captures or uploads a real image, converts it into indexed pixel art, and exports formats that can be reused as functional design elements and game assets.
+          </p>
+        </div>
+        <div class="info-card">
+          <h3>What makes it accurate</h3>
+          <p>
+            The app uses square source cropping, palette quantization, nearest-color indexing, and pixel-perfect preview rendering so the output matches the exported code.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer">BitMe • Photo to Pixel Asset Studio • Designed by Mario Garcia</div>
+  </div>
 
   <script>
-    const heroSpriteData = {
-      name: "bitme_face_sprite",
-      width: 64,
-      height: 64,
-      paletteRGB565: ["0xFFFF","0xA80A","0xFF7F","0x980A","0xA80C","0x988A","0xEFFF","0xA88A","0xA88C","0x990C","0xA98E","0xAA2E","0xFE7D","0xBB33","0x998C","0xCBB5"],
-      indexedPixels: []
-    };
-
-    const homeScreen = document.getElementById('homeScreen');
-    const appScreen = document.getElementById('appScreen');
-    const launchBtn = document.getElementById('launchBtn');
-    const howBtn = document.getElementById('howBtn');
     const heroCanvas = document.getElementById('heroCanvas');
-    const heroCtx = heroCanvas.getContext('2d', { alpha:true });
+    const heroCtx = heroCanvas.getContext('2d');
     heroCtx.imageSmoothingEnabled = false;
-    const heroNotice = document.getElementById('heroNotice');
+
+    const startCameraBtn = document.getElementById('startCameraBtn');
+    const captureBtn = document.getElementById('captureBtn');
+    const fileInput = document.getElementById('fileInput');
+    const convertBtn = document.getElementById('convertBtn');
+    const resetBtn = document.getElementById('resetBtn');
 
     const video = document.getElementById('video');
     const sourcePreview = document.getElementById('sourcePreview');
-    const captureCanvas = document.getElementById('captureCanvas');
-    const captureCtx = captureCanvas.getContext('2d', { willReadFrequently:true });
+    const sourceCanvas = document.getElementById('sourceCanvas');
+    const sourceCtx = sourceCanvas.getContext('2d', { willReadFrequently: true });
+
     const spriteCanvas = document.getElementById('spriteCanvas');
-    const spriteCtx = spriteCanvas.getContext('2d', { willReadFrequently:true });
+    const spriteCtx = spriteCanvas.getContext('2d', { willReadFrequently: true });
     spriteCtx.imageSmoothingEnabled = false;
-    const paletteGrid = document.getElementById('paletteGrid');
+
     const spriteSizeSelect = document.getElementById('spriteSize');
-    const scaleRange = document.getElementById('scaleRange');
+    const paletteSizeSelect = document.getElementById('paletteSize');
+    const previewScaleInput = document.getElementById('previewScale');
+
+    const paletteGrid = document.getElementById('paletteGrid');
     const codeOutput = document.getElementById('codeOutput');
-    const fileInput = document.getElementById('fileInput');
     const statusText = document.getElementById('statusText');
 
-    const state = { stream:null, hasSource:false, sourceDataURL:'', latestJSON:'', latestHeader:'', latestPalette:[], latestIndexed:[], latestWidth:0, latestHeight:0 };
+    const exportPngBtn = document.getElementById('exportPngBtn');
+    const exportJsonBtn = document.getElementById('exportJsonBtn');
+    const exportSvgBtn = document.getElementById('exportSvgBtn');
+    const exportCssBtn = document.getElementById('exportCssBtn');
+    const exportHeaderBtn = document.getElementById('exportHeaderBtn');
 
-    const heroGoldPalette = [
-      [0,0,0,0],[110,79,24,255],[255,244,215,255],[137,100,35,255],[168,128,52,255],[189,148,70,255],
-      [255,249,233,255],[178,136,58,255],[198,155,72,255],[214,169,84,255],[226,186,103,255],[237,198,123,255],
-      [255,230,184,255],[245,214,138,255],[203,162,88,255],[255,239,193,255]
+    const state = {
+      stream: null,
+      hasSource: false,
+      latest: null
+    };
+
+    const demoPalette = [
+      [10,18,20],[22,53,58],[38,109,118],[78,205,193],
+      [126,255,238],[234,255,252],[255,216,128],[172,116,78]
+    ];
+    const demoPixels = [
+      0,0,0,1,1,1,1,0,0,0,0,0,
+      0,0,1,4,4,4,4,1,0,0,0,0,
+      0,1,4,5,5,5,5,4,1,0,0,0,
+      0,1,5,7,5,5,7,5,1,0,0,0,
+      1,4,5,5,5,5,5,5,4,1,0,0,
+      1,4,5,2,5,5,2,5,4,1,0,0,
+      1,4,5,5,7,7,5,5,4,1,0,0,
+      0,1,4,5,5,5,5,4,1,0,0,0,
+      0,0,1,4,4,4,4,1,0,0,0,0,
+      0,0,0,1,6,6,1,0,0,0,0,0,
+      0,0,0,6,6,6,6,0,0,0,0,0,
+      0,0,0,0,6,6,0,0,0,0,0,0
     ];
 
-    function setStatus(msg){ statusText.textContent = msg; }
-
-    function validateHeroData(data){
-      return data && data.width === 64 && data.height === 64 && Array.isArray(data.indexedPixels) && data.indexedPixels.length === 4096;
+    function setStatus(message) {
+      statusText.textContent = message;
     }
 
-    function drawHeroSprite(){
-      heroCtx.clearRect(0,0,64,64);
-      if(!validateHeroData(heroSpriteData)){
-        heroNotice.textContent = 'The portrait data embedded in this file is incomplete. The launch flow is fixed, but the exact hero image needs the full 64×64 sprite JSON to render perfectly.';
-        return;
+    function drawHeroDemo() {
+      const pixelSize = 10;
+      heroCtx.clearRect(0, 0, heroCanvas.width, heroCanvas.height);
+      const width = 12;
+      const height = 12;
+      const offsetX = Math.floor((heroCanvas.width - width * pixelSize) / 2);
+      const offsetY = Math.floor((heroCanvas.height - height * pixelSize) / 2);
+
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          const idx = demoPixels[y * width + x];
+          const color = demoPalette[idx];
+          heroCtx.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+          heroCtx.fillRect(offsetX + x * pixelSize, offsetY + y * pixelSize, pixelSize, pixelSize);
+        }
       }
-      heroNotice.textContent = '';
-      const imageData = heroCtx.createImageData(64,64);
-      for(let i=0;i<4096;i++){
-        const idx = heroSpriteData.indexedPixels[i] ?? 0;
-        const [r,g,b,a] = heroGoldPalette[idx] || heroGoldPalette[0];
-        const p=i*4;
-        imageData.data[p]=r;
-        imageData.data[p+1]=g;
-        imageData.data[p+2]=b;
-        imageData.data[p+3]=a;
-      }
-      heroCtx.putImageData(imageData,0,0);
     }
 
-    launchBtn.addEventListener('click', () => {
-      homeScreen.style.display = 'none';
-      appScreen.classList.add('active');
-    });
-    howBtn.addEventListener('click', () => {
-      alert('1. Start Camera or Upload Photo\n2. Capture or select your image\n3. Press Convert to 16-Bit Sprite\n4. Export JSON or C Header');
-    });
-
-    async function startCamera(){
-      try{
-        const stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'user', width:{ideal:1280}, height:{ideal:1280}}, audio:false });
-        if(state.stream) state.stream.getTracks().forEach(t => t.stop());
+    async function startCamera() {
+      try {
+        if (!navigator.mediaDevices?.getUserMedia) {
+          setStatus('Camera access is not supported on this browser.');
+          return;
+        }
+        if (state.stream) {
+          state.stream.getTracks().forEach(track => track.stop());
+        }
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: 'user',
+            width: { ideal: 1280 },
+            height: { ideal: 1280 }
+          },
+          audio: false
+        });
         state.stream = stream;
         video.srcObject = stream;
         video.style.display = 'block';
         sourcePreview.style.display = 'none';
-        setStatus('Camera started. Frame your face and press Capture Face.');
-      }catch(e){
+        setStatus('Camera started. Frame the image and click Capture Photo.');
+      } catch (err) {
+        console.error(err);
         setStatus('Camera access failed. Use Upload Photo or run from GitHub Pages / localhost.');
       }
     }
 
-    function drawImageCoverToCanvas(image, ctx, targetW, targetH){
+    function drawCover(image, ctx, targetW, targetH) {
       const iw = image.videoWidth || image.naturalWidth || image.width;
       const ih = image.videoHeight || image.naturalHeight || image.height;
-      if(!iw || !ih) return;
+      if (!iw || !ih) return;
       const scale = Math.max(targetW / iw, targetH / ih);
-      const dw = iw * scale, dh = ih * scale;
-      const dx = (targetW - dw)/2, dy = (targetH - dh)/2;
-      ctx.clearRect(0,0,targetW,targetH);
-      ctx.drawImage(image, dx, dy, dw, dh);
+      const drawW = iw * scale;
+      const drawH = ih * scale;
+      const dx = (targetW - drawW) / 2;
+      const dy = (targetH - drawH) / 2;
+      ctx.clearRect(0, 0, targetW, targetH);
+      ctx.drawImage(image, dx, dy, drawW, drawH);
     }
 
-    function updateSourcePreviewFromCanvas(){
-      state.sourceDataURL = captureCanvas.toDataURL('image/png');
-      sourcePreview.src = state.sourceDataURL;
+    function updateSourcePreview() {
+      const dataUrl = sourceCanvas.toDataURL('image/png');
+      sourcePreview.src = dataUrl;
       sourcePreview.style.display = 'block';
       video.style.display = 'none';
       state.hasSource = true;
     }
 
-    function captureFace(){
-      if(video.readyState < 2){ setStatus('Camera is not ready yet.'); return; }
-      drawImageCoverToCanvas(video, captureCtx, 256, 256);
-      updateSourcePreviewFromCanvas();
-      setStatus('Face captured. Press Convert to 16-Bit Sprite.');
+    function capturePhoto() {
+      if (video.readyState < 2) {
+        setStatus('Camera is not ready yet. Start it first or upload a photo.');
+        return;
+      }
+      drawCover(video, sourceCtx, 512, 512);
+      updateSourcePreview();
+      setStatus('Photo captured. Now convert it into a pixel asset.');
     }
 
-    function loadUploadedImage(file){
+    function loadImageFile(file) {
       const reader = new FileReader();
       reader.onload = e => {
         const img = new Image();
         img.onload = () => {
-          drawImageCoverToCanvas(img, captureCtx, 256, 256);
-          updateSourcePreviewFromCanvas();
-          setStatus('Photo loaded. Press Convert to 16-Bit Sprite.');
+          drawCover(img, sourceCtx, 512, 512);
+          updateSourcePreview();
+          setStatus('Photo uploaded. Now convert it into a pixel asset.');
         };
         img.src = e.target.result;
       };
       reader.readAsDataURL(file);
     }
 
-    function quantizeChannel(value, levels = 16){
-      const step = 255 / (levels - 1);
-      return Math.round(value / step) * step;
-    }
+    function quantizePaletteFromImageData(imageData, paletteSize) {
+      const map = new Map();
+      const d = imageData.data;
+      const step = 255 / 15;
 
-    function buildPaletteFromImageData(imageData){
-      const freq = new Map();
-      const data = imageData.data;
-      for(let i=0;i<data.length;i+=4){
-        const a=data[i+3]; if(a<10) continue;
-        const r=quantizeChannel(data[i],16), g=quantizeChannel(data[i+1],16), b=quantizeChannel(data[i+2],16);
-        const key=`${r},${g},${b}`;
-        freq.set(key,(freq.get(key)||0)+1);
+      for (let i = 0; i < d.length; i += 4) {
+        const a = d[i + 3];
+        if (a < 16) continue;
+        const r = Math.round(d[i] / step) * step;
+        const g = Math.round(d[i + 1] / step) * step;
+        const b = Math.round(d[i + 2] / step) * step;
+        const key = `${r},${g},${b}`;
+        map.set(key, (map.get(key) || 0) + 1);
       }
-      let palette=[...freq.entries()].sort((a,b)=>b[1]-a[1]).slice(0,16).map(([k])=>k.split(',').map(Number));
-      while(palette.length<16) palette.push([0,0,0]);
-      return palette.slice(0,16);
+
+      const palette = [...map.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, paletteSize)
+        .map(entry => entry[0].split(',').map(Number));
+
+      while (palette.length < paletteSize) palette.push([0, 0, 0]);
+      return palette;
     }
 
-    function nearestPaletteIndex(r,g,b,palette){
-      let best=0, bestD=Infinity;
-      for(let i=0;i<palette.length;i++){
-        const [pr,pg,pb]=palette[i];
-        const d=(r-pr)*(r-pr)+(g-pg)*(g-pg)+(b-pb)*(b-pb);
-        if(d<bestD){ bestD=d; best=i; }
+    function nearestIndex(r, g, b, palette) {
+      let best = 0;
+      let bestDist = Infinity;
+      for (let i = 0; i < palette.length; i++) {
+        const [pr, pg, pb] = palette[i];
+        const dr = r - pr;
+        const dg = g - pg;
+        const db = b - pb;
+        const dist = dr * dr + dg * dg + db * db;
+        if (dist < bestDist) {
+          bestDist = dist;
+          best = i;
+        }
       }
       return best;
     }
 
-    function rgb565(r,g,b){
-      const v=((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
-      return '0x'+v.toString(16).toUpperCase().padStart(4,'0');
+    function rgb565(r, g, b) {
+      const value = ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
+      return '0x' + value.toString(16).toUpperCase().padStart(4, '0');
     }
 
-    function renderSprite(indexed,palette,width,height){
-      const scale = Number(scaleRange.value);
-      const renderW = width * scale, renderH = height * scale;
+    function renderPreview(indexed, palette, width, height) {
+      const scale = Number(previewScaleInput.value);
+      const renderW = width * scale;
+      const renderH = height * scale;
       spriteCanvas.width = Math.max(384, renderW + 32);
       spriteCanvas.height = Math.max(384, renderH + 32);
-      const xOffset = Math.floor((spriteCanvas.width - renderW)/2);
-      const yOffset = Math.floor((spriteCanvas.height - renderH)/2);
-      spriteCtx.clearRect(0,0,spriteCanvas.width,spriteCanvas.height);
-      for(let y=0;y<height;y++){
-        for(let x=0;x<width;x++){
-          const idx=indexed[y*width+x], color=palette[idx]||[0,0,0];
-          spriteCtx.fillStyle=`rgb(${color[0]},${color[1]},${color[2]})`;
-          spriteCtx.fillRect(xOffset+x*scale,yOffset+y*scale,scale,scale);
+      spriteCtx.clearRect(0, 0, spriteCanvas.width, spriteCanvas.height);
+      spriteCtx.imageSmoothingEnabled = false;
+
+      const offsetX = Math.floor((spriteCanvas.width - renderW) / 2);
+      const offsetY = Math.floor((spriteCanvas.height - renderH) / 2);
+
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          const idx = indexed[y * width + x];
+          const [r, g, b] = palette[idx] || [0, 0, 0];
+          spriteCtx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+          spriteCtx.fillRect(offsetX + x * scale, offsetY + y * scale, scale, scale);
         }
       }
     }
 
-    function renderPalette(palette){
-      paletteGrid.innerHTML='';
-      palette.forEach((color,index)=>{
-        const sw=document.createElement('div');
-        sw.className='swatch';
-        sw.innerHTML = `<div class="swatch-color" style="background:rgb(${color[0]},${color[1]},${color[2]})"></div><div class="swatch-label">#${index} ${rgb565(color[0],color[1],color[2])}</div>`;
-        paletteGrid.appendChild(sw);
+    function renderPalette(palette) {
+      paletteGrid.innerHTML = '';
+      palette.forEach((color, index) => {
+        const item = document.createElement('div');
+        item.className = 'swatch';
+        const colorEl = document.createElement('div');
+        colorEl.className = 'swatch-color';
+        colorEl.style.background = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+        const label = document.createElement('div');
+        label.className = 'swatch-label';
+        label.textContent = `#${index} ${rgb565(color[0], color[1], color[2])}`;
+        item.appendChild(colorEl);
+        item.appendChild(label);
+        paletteGrid.appendChild(item);
       });
     }
 
-    function buildExports(palette,indexed,width,height){
-      const pal565=palette.map(([r,g,b])=>rgb565(r,g,b));
-      const jsonObj={name:'bitme_face_sprite',width,height,paletteRGB565:pal565,paletteRGB:palette,indexedPixels:indexed};
-      state.latestJSON=JSON.stringify(jsonObj,null,2);
-      state.latestHeader=`#ifndef BITME_FACE_SPRITE_H\n#define BITME_FACE_SPRITE_H\n\n#define BITME_FACE_SPRITE_WIDTH ${width}\n#define BITME_FACE_SPRITE_HEIGHT ${height}\n#define BITME_FACE_SPRITE_PALETTE_SIZE 16\n\nstatic const unsigned short bitme_face_sprite_palette[16] = {\n  ${pal565.join(', ')}\n};\n\nstatic const unsigned char bitme_face_sprite_pixels[${indexed.length}] = {\n  ${indexed.join(', ')}\n};\n\n#endif\n`;
-      codeOutput.value=state.latestHeader;
+    function buildSvg(indexed, palette, width, height, pixelScale = 1) {
+      const rects = [];
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          const idx = indexed[y * width + x];
+          const [r, g, b] = palette[idx];
+          rects.push(`<rect x="${x * pixelScale}" y="${y * pixelScale}" width="${pixelScale}" height="${pixelScale}" fill="rgb(${r},${g},${b})" />`);
+        }
+      }
+      return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${width * pixelScale}" height="${height * pixelScale}" viewBox="0 0 ${width * pixelScale} ${height * pixelScale}" shape-rendering="crispEdges">
+${rects.join("\n")}
+</svg>`;
     }
 
-    function convertToSprite(){
-      if(!state.hasSource){
-        if(video.readyState >= 2){ captureFace(); }
-        else { setStatus('No source image found.'); return; }
+    function buildCssBoxShadow(indexed, palette, width, height) {
+      const shadows = [];
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          const idx = indexed[y * width + x];
+          const [r, g, b] = palette[idx];
+          shadows.push(`${x}px ${y}px 0 rgb(${r},${g},${b})`);
+        }
       }
-      const size=Number(spriteSizeSelect.value);
-      const tmp=document.createElement('canvas');
-      tmp.width=size; tmp.height=size;
-      const tctx=tmp.getContext('2d', {willReadFrequently:true});
-      tctx.drawImage(captureCanvas,0,0,size,size);
-      const img=tctx.getImageData(0,0,size,size);
-      const palette=buildPaletteFromImageData(img);
-      const indexed=[];
-      for(let i=0;i<img.data.length;i+=4){
-        const a=img.data[i+3];
-        indexed.push(a<10 ? 0 : nearestPaletteIndex(img.data[i],img.data[i+1],img.data[i+2],palette));
+      return `.bitme-pixel-art {
+  width: 1px;
+  height: 1px;
+  box-shadow:
+    ${shadows.join(',\n    ')};
+}
+`;
+    }
+
+    function buildCHeader(indexed, palette, width, height) {
+      const palette565 = palette.map(([r, g, b]) => rgb565(r, g, b));
+      return `#ifndef BITME_SPRITE_H
+#define BITME_SPRITE_H
+
+#define BITME_WIDTH ${width}
+#define BITME_HEIGHT ${height}
+#define BITME_PALETTE_SIZE ${palette.length}
+
+static const unsigned short bitme_palette[${palette.length}] = {
+  ${palette565.join(', ')}
+};
+
+static const unsigned char bitme_pixels[${indexed.length}] = {
+  ${indexed.join(', ')}
+};
+
+#endif
+`;
+    }
+
+    function convert() {
+      if (!state.hasSource) {
+        if (video.readyState >= 2) {
+          capturePhoto();
+        } else {
+          setStatus('Add a source photo first.');
+          return;
+        }
       }
-      state.latestPalette=palette; state.latestIndexed=indexed; state.latestWidth=size; state.latestHeight=size;
-      renderSprite(indexed,palette,size,size);
+
+      const spriteSize = Number(spriteSizeSelect.value);
+      const paletteSize = Number(paletteSizeSelect.value);
+
+      const tmp = document.createElement('canvas');
+      tmp.width = spriteSize;
+      tmp.height = spriteSize;
+      const tctx = tmp.getContext('2d', { willReadFrequently: true });
+      tctx.imageSmoothingEnabled = true;
+      tctx.drawImage(sourceCanvas, 0, 0, spriteSize, spriteSize);
+
+      const imgData = tctx.getImageData(0, 0, spriteSize, spriteSize);
+      const palette = quantizePaletteFromImageData(imgData, paletteSize);
+      const indexed = [];
+
+      for (let i = 0; i < imgData.data.length; i += 4) {
+        const r = imgData.data[i];
+        const g = imgData.data[i + 1];
+        const b = imgData.data[i + 2];
+        const a = imgData.data[i + 3];
+        indexed.push(a < 16 ? 0 : nearestIndex(r, g, b, palette));
+      }
+
+      const palette565 = palette.map(([r, g, b]) => rgb565(r, g, b));
+      const jsonData = {
+        name: 'bitme_asset',
+        width: spriteSize,
+        height: spriteSize,
+        paletteRGB565: palette565,
+        paletteRGB: palette,
+        indexedPixels: indexed
+      };
+
+      const svg = buildSvg(indexed, palette, spriteSize, spriteSize, 1);
+      const css = buildCssBoxShadow(indexed, palette, spriteSize, spriteSize);
+      const header = buildCHeader(indexed, palette, spriteSize, spriteSize);
+
+      state.latest = {
+        width: spriteSize,
+        height: spriteSize,
+        palette,
+        indexed,
+        palette565,
+        json: JSON.stringify(jsonData, null, 2),
+        svg,
+        css,
+        header
+      };
+
+      renderPreview(indexed, palette, spriteSize, spriteSize);
       renderPalette(palette);
-      buildExports(palette,indexed,size,size);
-      setStatus('Conversion complete. Export JSON or C Header when ready.');
+      codeOutput.value = state.latest.json;
+      setStatus('Conversion complete. Your pixel asset is ready to export.');
     }
 
-    function downloadFile(name, content, type){
-      const blob = new Blob([content], {type});
+    function resetApp() {
+      if (state.stream) {
+        state.stream.getTracks().forEach(track => track.stop());
+        state.stream = null;
+      }
+      video.srcObject = null;
+      video.style.display = 'block';
+      sourcePreview.src = '';
+      sourcePreview.style.display = 'none';
+      sourceCtx.clearRect(0, 0, sourceCanvas.width, sourceCanvas.height);
+      spriteCtx.clearRect(0, 0, spriteCanvas.width, spriteCanvas.height);
+      paletteGrid.innerHTML = '';
+      codeOutput.value = '';
+      state.hasSource = false;
+      state.latest = null;
+      setStatus('Reset complete. Start the camera or upload a photo.');
+      drawHeroDemo();
+    }
+
+    function downloadText(filename, content, type = 'text/plain') {
+      const blob = new Blob([content], { type });
       const url = URL.createObjectURL(blob);
-      const a=document.createElement('a');
-      a.href=url; a.download=name; a.click();
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
       URL.revokeObjectURL(url);
     }
 
-    document.getElementById('startCameraBtn').addEventListener('click', startCamera);
-    document.getElementById('captureBtn').addEventListener('click', captureFace);
-    document.getElementById('convertBtn').addEventListener('click', convertToSprite);
-    document.getElementById('downloadJsonBtn').addEventListener('click', ()=> state.latestJSON && downloadFile('bitme-sprite.json', state.latestJSON, 'application/json'));
-    document.getElementById('downloadHeaderBtn').addEventListener('click', ()=> state.latestHeader && downloadFile('bitme-sprite.h', state.latestHeader, 'text/plain'));
+    function downloadCanvasPng(canvas, filename) {
+      canvas.toBlob(blob => {
+        if (!blob) return;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      });
+    }
+
+    startCameraBtn.addEventListener('click', startCamera);
+    captureBtn.addEventListener('click', capturePhoto);
+    convertBtn.addEventListener('click', convert);
+    resetBtn.addEventListener('click', resetApp);
+
     fileInput.addEventListener('change', e => {
-      const file=e.target.files && e.target.files[0];
-      if(file) loadUploadedImage(file);
-    });
-    scaleRange.addEventListener('input', ()=>{
-      if(state.latestIndexed.length) renderSprite(state.latestIndexed,state.latestPalette,state.latestWidth,state.latestHeight);
+      const file = e.target.files?.[0];
+      if (file) loadImageFile(file);
     });
 
-    drawHeroSprite();
-    setStatus('Ready. Launch camera or upload a photo.');
+    previewScaleInput.addEventListener('input', () => {
+      if (state.latest) {
+        renderPreview(state.latest.indexed, state.latest.palette, state.latest.width, state.latest.height);
+      }
+    });
+
+    exportPngBtn.addEventListener('click', () => {
+      if (!state.latest) return setStatus('Convert an image before exporting PNG.');
+      const out = document.createElement('canvas');
+      out.width = state.latest.width;
+      out.height = state.latest.height;
+      const octx = out.getContext('2d');
+      octx.imageSmoothingEnabled = false;
+      for (let y = 0; y < state.latest.height; y++) {
+        for (let x = 0; x < state.latest.width; x++) {
+          const idx = state.latest.indexed[y * state.latest.width + x];
+          const [r, g, b] = state.latest.palette[idx];
+          octx.fillStyle = `rgb(${r},${g},${b})`;
+          octx.fillRect(x, y, 1, 1);
+        }
+      }
+      downloadCanvasPng(out, 'bitme-asset.png');
+      setStatus('PNG downloaded.');
+    });
+
+    exportJsonBtn.addEventListener('click', () => {
+      if (!state.latest) return setStatus('Convert an image before exporting JSON.');
+      codeOutput.value = state.latest.json;
+      downloadText('bitme-asset.json', state.latest.json, 'application/json');
+      setStatus('JSON downloaded.');
+    });
+
+    exportSvgBtn.addEventListener('click', () => {
+      if (!state.latest) return setStatus('Convert an image before exporting SVG.');
+      codeOutput.value = state.latest.svg;
+      downloadText('bitme-asset.svg', state.latest.svg, 'image/svg+xml');
+      setStatus('SVG downloaded.');
+    });
+
+    exportCssBtn.addEventListener('click', () => {
+      if (!state.latest) return setStatus('Convert an image before exporting CSS.');
+      codeOutput.value = state.latest.css;
+      downloadText('bitme-asset.css', state.latest.css, 'text/css');
+      setStatus('CSS downloaded.');
+    });
+
+    exportHeaderBtn.addEventListener('click', () => {
+      if (!state.latest) return setStatus('Convert an image before exporting C Header.');
+      codeOutput.value = state.latest.header;
+      downloadText('bitme-asset.h', state.latest.header, 'text/plain');
+      setStatus('C header downloaded.');
+    });
+
+    drawHeroDemo();
   </script>
 </body>
 </html>
