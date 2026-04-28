@@ -177,6 +177,29 @@
     .btn-primary {
       background: linear-gradient(180deg, rgba(173,17,100,.42), rgba(49,12,40,.98));
     }
+    .upload-label {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      min-height: 48px;
+    }
+    .upload-label span {
+      pointer-events: none;
+      position: relative;
+      z-index: 1;
+    }
+    .file-picker {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+      font-size: 120px;
+    }
+
     .grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -485,9 +508,9 @@
             <div class="row">
               <button id="startCameraBtn" class="btn">Start Camera</button>
               <button id="captureBtn" class="btn">Capture Photo</button>
-              <label class="btn" style="display:inline-flex; align-items:center; justify-content:center;">
-                Upload Photo
-                <input id="fileInput" type="file" accept="image/*" hidden>
+              <label class="btn upload-label">
+                <span>Upload Photo</span>
+                <input id="fileInput" class="file-picker" type="file" accept="image/*">
               </label>
             </div>
             <div class="row">
@@ -686,6 +709,7 @@
       }
       const width = video.videoWidth || 1280;
       const height = video.videoHeight || 720;
+      clearCurrentConversion();
       setSourceCanvasSize(width, height);
       drawOriginalSize(video, captureCtx, captureCanvas.width, captureCanvas.height);
       state.latestSourceDataUrl = captureCanvas.toDataURL('image/png');
@@ -697,23 +721,73 @@
       setStatus(`Photo captured at ${captureCanvas.width} × ${captureCanvas.height}. Original dimensions will be preserved automatically.`);
     }
 
+    function clearCurrentConversion() {
+      state.latest = null;
+      codeOutput.value = '';
+      paletteGrid.innerHTML = '';
+    }
+
     function loadFile(file) {
+      if (!file) {
+        setStatus('No file selected.');
+        return;
+      }
+      if (!file.type || !file.type.startsWith('image/')) {
+        setStatus('Please choose an image file.');
+        return;
+      }
+
+      setStatus(`Loading ${file.name || 'image'}...`);
+      clearCurrentConversion();
+
       const reader = new FileReader();
-      reader.onload = event => {
-        const img = new Image();
-        img.onload = () => {
-          setSourceCanvasSize(img.naturalWidth || img.width, img.naturalHeight || img.height);
-          drawOriginalSize(img, captureCtx, captureCanvas.width, captureCanvas.height);
-          state.latestSourceDataUrl = captureCanvas.toDataURL('image/png');
-          state.sourceKind = 'upload';
-          sourcePreview.src = state.latestSourceDataUrl;
-          sourcePreview.style.display = 'block';
-          video.style.display = 'none';
-          state.sourceReady = true;
-          setStatus(`Photo uploaded at original size: ${captureCanvas.width} × ${captureCanvas.height}. Original dimensions will be preserved automatically.`);
-        };
-        img.src = event.target.result;
+
+      reader.onerror = () => {
+        console.error(reader.error);
+        setStatus('The image could not be read. Try another photo or export it as PNG/JPG first.');
       };
+
+      reader.onload = event => {
+        const imageUrl = event.target.result;
+        const img = new Image();
+
+        img.onload = () => {
+          try {
+            const width = img.naturalWidth || img.width;
+            const height = img.naturalHeight || img.height;
+
+            if (!width || !height) {
+              setStatus('The image loaded, but its dimensions could not be detected.');
+              return;
+            }
+
+            setSourceCanvasSize(width, height);
+            drawOriginalSize(img, captureCtx, captureCanvas.width, captureCanvas.height);
+
+            // Use the original data URL for preview instead of creating a huge canvas data URL.
+            // This prevents mobile browsers from freezing during upload.
+            state.latestSourceDataUrl = imageUrl;
+            state.sourceKind = 'upload';
+
+            sourcePreview.src = imageUrl;
+            sourcePreview.style.display = 'block';
+            video.style.display = 'none';
+
+            state.sourceReady = true;
+            setStatus(`Photo uploaded: ${captureCanvas.width} × ${captureCanvas.height}. Choose a pixel depth or keep original dimensions, then convert.`);
+          } catch (err) {
+            console.error(err);
+            setStatus('The image was selected, but the app could not place it on the canvas. Try a smaller JPG or PNG.');
+          }
+        };
+
+        img.onerror = () => {
+          setStatus('That image format could not be loaded in this browser. Try saving it as JPG or PNG first.');
+        };
+
+        img.src = imageUrl;
+      };
+
       reader.readAsDataURL(file);
     }
 
@@ -1025,9 +1099,18 @@
     startCameraBtn.addEventListener('click', startCamera);
     captureBtn.addEventListener('click', capturePhoto);
     convertBtn.addEventListener('click', convertImage);
+    fileInput.addEventListener('click', () => {
+      // Allows selecting the same photo twice in a row and still firing change.
+      fileInput.value = '';
+    });
+
     fileInput.addEventListener('change', e => {
-      const file = e.target.files?.[0];
-      if (file) loadFile(file);
+      const file = e.target.files && e.target.files[0];
+      if (file) {
+        loadFile(file);
+      } else {
+        setStatus('No file selected.');
+      }
     });
     scaleRange.addEventListener('input', () => {
       if (state.latest) renderPreview(state.latest.indexed, state.latest.palette, state.latest.width, state.latest.height);
@@ -1072,7 +1155,7 @@
       downloadBlob('bitme-asset.h', text, 'text/plain');
     });
 
-    setStatus('Ready. Start the camera or upload a photo.');
+    setStatus('Ready. Tap Upload Photo or start the camera.');
   </script>
 </body>
 </html>
